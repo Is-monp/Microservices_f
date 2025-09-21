@@ -5,7 +5,6 @@ import {
     Server, 
     BarChart3, 
     Settings as SettingsIcon,
-    Activity
 } from 'lucide-react';
 import './Sidebar.scss';
 
