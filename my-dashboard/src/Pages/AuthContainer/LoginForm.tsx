@@ -31,7 +31,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onToggleMode }) => {
 
     return (
     <div className="auth-form">
-        <h2 className="form-title">Sign In Account</h2>
+        <h2 className="form-title">Sign In</h2>
         <p className="form-subtitle">Enter your credentials to access your account.</p>
 
         <form onSubmit={handleSubmit} className="form-fields">
