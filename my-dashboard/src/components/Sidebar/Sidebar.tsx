@@ -1,53 +1,73 @@
-// components/Sidebar/Sidebar.tsx
 import React from 'react';
-import { Server, Activity, Globe, Settings, LogOut } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
+import { 
+    LayoutDashboard, 
+    Server, 
+    BarChart3, 
+    Settings as SettingsIcon,
+    Activity
+} from 'lucide-react';
 import './Sidebar.scss';
 
 interface MenuItem {
+    path: string;
     icon: React.ReactElement;
     label: string;
-    active: boolean;
-}
+    }
 
 const Sidebar: React.FC = () => {
     const menuItems: MenuItem[] = [
-        { icon: <Server className="sidebar__menu-icon" />, label: 'Dashboard', active: true },
-        { icon: <Activity className="sidebar__menu-icon" />, label: 'Microservicios', active: false },
-        { icon: <Globe className="sidebar__menu-icon" />, label: 'Endpoints', active: false },
-        { icon: <Settings className="sidebar__menu-icon" />, label: 'Configuración', active: false },
+        { 
+        path: '/dashboard', 
+        icon: <LayoutDashboard size={20} />, 
+        label: 'Dashboard' 
+        },
+        { 
+        path: '/microservices', 
+        icon: <Server size={20} />, 
+        label: 'Microservicios'
+        },
+        { 
+        path: '/analytics', 
+        icon: <BarChart3 size={20} />, 
+        label: 'Analytics' 
+        },
+        { 
+        path: '/settings', 
+        icon: <SettingsIcon size={20} />, 
+        label: 'Configuración' 
+        }
     ];
 
     return (
-        <div className="sidebar">
-        {/* Logo */}
+        <aside className="sidebar">
+        {/* Header */}
         <div className="sidebar__header">
             <div className="sidebar__logo">
-            <Server className="sidebar__logo-icon" />
-            </div>
+            <Activity size={24} className="sidebar__logo-icon" />
             <span className="sidebar__brand">MicroManager</span>
+            </div>
         </div>
 
-        {/* Menu Items */}
+        {/* Navigation */}
         <nav className="sidebar__nav">
-            {menuItems.map((item, index) => (
-            <div
-                key={index}
-                className={`sidebar__menu-item ${item.active ? 'sidebar__menu-item--active' : ''}`}
-            >
-                {item.icon}
-                <span className="sidebar__menu-label">{item.label}</span>
-            </div>
+            <ul className="sidebar__nav-list">
+            {menuItems.map((item) => (
+                <li key={item.path} className="sidebar__nav-item">
+                <NavLink
+                    to={item.path}
+                    className={({ isActive }) =>
+                    `sidebar__nav-link ${isActive ? 'sidebar__nav-link--active' : ''}`
+                    }
+                >
+                    <span className="sidebar__nav-icon">{item.icon}</span>
+                    <span className="sidebar__nav-text">{item.label}</span>
+                </NavLink>
+                </li>
             ))}
+            </ul>
         </nav>
-
-        {/* Bottom Menu */}
-        <div className="sidebar__footer">
-            <div className="sidebar__menu-item">
-            <LogOut className="sidebar__menu-icon" />
-            <span className="sidebar__menu-label">Cerrar Sesión</span>
-            </div>
-        </div>
-        </div>
+        </aside>
     );
 };
 

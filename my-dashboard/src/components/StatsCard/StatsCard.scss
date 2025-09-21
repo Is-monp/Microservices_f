@@ -1,25 +1,28 @@
 .stats-card {
     padding: 1.5rem;
-    border-radius: 1rem;
-    color: white;
+    border-radius: 1.5rem;
+    color: Black;
     position: relative;
     overflow: hidden;
+    aspect-ratio: 1.5 / 1; /* 3 veces más ancha que alta */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 
     &--yellow {
-        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    background:#F5BF5B;
     }
 
     &--purple {
-        background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+    background: #A18CD1;
     }
 
     &--green {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: #D0E892;
     }
 
     &--blue {
-        background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+    background: #8A45D4;
     }
+
 
     &__content {
         display: flex;
@@ -28,6 +31,9 @@
     }
 
     &__info {
+        margin-top: auto;
+        flex-direction: column;
+        align-items: end;
         flex: 1;
     }
 
@@ -35,7 +41,7 @@
         font-size: 0.875rem;
         opacity: 0.9;
         margin: 0 0 0.5rem 0;
-        font-weight: 500;
+        font-weight: 750;
     }
 
     &__value {
@@ -53,7 +59,7 @@
     &__icon-container {
         width: 2.5rem;
         height: 2.5rem;
-        background-color: rgba(0, 0, 0, 0.2);
+        background-color: black;
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -63,5 +69,6 @@
     &__icon {
         width: 1.25rem;
         height: 1.25rem;
+        color: rgba(255, 255, 255, 0.70);
     }
 }

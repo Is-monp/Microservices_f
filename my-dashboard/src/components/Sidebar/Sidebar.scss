@@ -1,11 +1,16 @@
 .sidebar {
     width: 16rem;
-    background-color: #111827;
+    background-color: #141414;
     height: 100vh;
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 50;
 
+    // Header
     &__header {
         display: flex;
         align-items: center;
@@ -13,68 +18,73 @@
     }
 
     &__logo {
-        width: 2rem;
-        height: 2rem;
-        background-color: #8b5cf6;
-        border-radius: 0.5rem;
         display: flex;
         align-items: center;
-        justify-content: center;
 
         &-icon {
-        width: 1.25rem;
-        height: 1.25rem;
-        color: white;
+        color: #8b5cf6;
+        flex-shrink: 0;
         }
     }
 
     &__brand {
         margin-left: 0.75rem;
         color: white;
-        font-weight: 600;
+        font-weight: 700;
         font-size: 1.125rem;
+        letter-spacing: 0.5px;
     }
 
+    // Navigation
     &__nav {
         flex: 1;
     }
 
-    &__menu-item {
+    &__nav-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    &__nav-item {
+        margin-bottom: 0.25rem;
+    }
+
+    &__nav-link {
         display: flex;
         align-items: center;
         padding: 0.75rem;
-        margin-bottom: 0.5rem;
         border-radius: 0.5rem;
         cursor: pointer;
-        transition: all 0.2s;
-        color: #9ca3af;
+        transition: all 0.2s ease;
+        color: #5B5B5B;
+        text-decoration: none;
 
         &:hover {
-        background-color: #1f2937;
+        background-color: #b181ec7e;
         color: white;
         }
 
         &--active {
-        background-color: #8b5cf6;
+        background-color: #B281EC;
         color: white;
-
-        &:hover {
-            background-color: #7c3aed;
-        }
         }
     }
 
-    &__menu-icon {
-        width: 1.25rem;
-        height: 1.25rem;
+    &__nav-icon {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    &__menu-label {
+    &__nav-text {
         margin-left: 0.75rem;
+        font-weight: 500;
     }
 
-    &__footer {
-        border-top: 1px solid #374151;
-        padding-top: 1rem;
+    // Mobile responsive
+    @media (max-width: 1024px) {
+        display: none; // Ocultar en móvil por ahora
     }
 }

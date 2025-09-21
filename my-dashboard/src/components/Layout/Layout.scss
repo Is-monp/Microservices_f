@@ -1,0 +1,53 @@
+.layout {
+    display: flex;
+    height: 100vh;
+    
+    // Content area (everything except sidebar)
+    &__content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        margin-left: 16rem; // Mismo ancho que el sidebar (256px)
+        min-width: 0;
+        
+        @media (max-width: 1024px) {
+        margin-left: 0; // En móvil no hay margen porque el sidebar está oculto
+        }
+    }
+
+    // Main content area (below header)
+    &__main {
+        flex: 1;
+        padding: 1.5rem;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background-color: #000000;
+        
+        &::-webkit-scrollbar {
+            width: 10px; // Ancho un poco mayor para mejor apariencia
+        }
+
+        &::-webkit-scrollbar-track {
+            background: #1f2937;
+            border-radius: 10px; // Bordes redondeados en el track
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 10px; // Bordes completamente redondeados
+
+            &:hover {
+                background: #383e47;
+            }
+        }
+        
+
+        @media (max-width: 768px) {
+        padding: 1rem;
+        }
+
+        @media (max-width: 480px) {
+        padding: 0.75rem;
+        }
+    }
+}

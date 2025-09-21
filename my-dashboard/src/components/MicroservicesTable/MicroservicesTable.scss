@@ -1,5 +1,5 @@
 .microservices-table {
-    background-color: #1f2937;
+    background-color: #0D0D0D;
     border-radius: 1rem;
     padding: 1.5rem;
 
@@ -21,15 +21,16 @@
         display: flex;
         align-items: center;
         padding: 0.5rem 1rem;
-        background-color: #8b5cf6;
-        color: white;
+        background-color: #D5ED97;
+        color: black;
+        font-weight: bold;
         border: none;
         border-radius: 0.5rem;
         cursor: pointer;
         transition: background-color 0.2s;
 
         &:hover {
-        background-color: #7c3aed;
+        background-color: #F5BF5B;
         }
     }
 
@@ -49,7 +50,7 @@
     }
 
     &__header-row {
-        border-bottom: 1px solid #374151;
+        border-bottom: 1px solid #5B5B5B;
     }
 
     &__header-cell {
@@ -64,7 +65,7 @@
     }
 
     &__row {
-        border-bottom: 1px solid #374151;
+        border-bottom: 1px solid #5B5B5B;
         transition: background-color 0.2s;
 
         &:hover {

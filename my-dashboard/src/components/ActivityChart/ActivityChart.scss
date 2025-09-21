@@ -1,5 +1,5 @@
 .activity-chart {
-    background-color: #1f2937;
+    background-color: #0D0D0D;
     border-radius: 1rem;
     padding: 1.5rem;
 
@@ -30,7 +30,6 @@
         margin-bottom: 1.5rem;
         position: relative;
         
-        // Personalizar el canvas
         canvas {
         border-radius: 0.5rem;
         }
@@ -47,7 +46,7 @@
     &__stat {
         text-align: center;
         padding: 1rem;
-        background-color: #374151;
+        background-color: #1b1f27;
         border-radius: 0.75rem;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         
@@ -57,11 +56,11 @@
         }
 
         &:nth-child(1) {
-        border-left: 3px solid #8b5cf6;
+        border-left: 3px solid #B281EC;
         }
 
         &:nth-child(2) {
-        border-left: 3px solid #10b981;
+        border-left: 3px solid #F7C15D;
         }
 
         &:nth-child(3) {
@@ -69,7 +68,7 @@
         }
 
         &:nth-child(4) {
-        border-left: 3px solid #f59e0b;
+        border-left: 3px solid #D1E991;
         }
 
         &-value {

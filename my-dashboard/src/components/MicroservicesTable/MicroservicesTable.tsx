@@ -1,4 +1,3 @@
-// components/MicroservicesTable/MicroservicesTable.tsx
 import React from 'react';
 import { Plus, Eye, Edit, Trash2 } from 'lucide-react';
 import './MicroservicesTable.scss';

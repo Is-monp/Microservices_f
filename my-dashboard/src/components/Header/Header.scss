@@ -1,0 +1,107 @@
+.header {
+    background-color: #141414;
+    padding: 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+
+    &__content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 100%;
+    }
+
+    &__welcome {
+        display: flex;
+        flex-direction: column;
+        min-width: 0; // Permite que el texto se trunque si es necesario
+    }
+
+    &__title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+        margin: 0 0 0.25rem 0;
+        line-height: 1.2;
+
+        @media (max-width: 768px) {
+        font-size: 1.25rem;
+        }
+    }
+
+    &__subtitle {
+        color: #9ca3af;
+        margin: 0;
+        font-size: 0.875rem;
+        line-height: 1.4;
+
+        @media (max-width: 768px) {
+        font-size: 0.8rem;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-shrink: 0;
+
+        @media (max-width: 768px) {
+        gap: 0.75rem;
+        }
+    }
+
+    &__avatar {
+        width: 2rem;
+        height: 2rem;
+        background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 2px solid transparent;
+
+        &:hover {
+        transform: scale(1.05);
+        border-color: #8b5cf6;
+        }
+
+        span {
+        color: white;
+        font-size: 0.875rem;
+        font-weight: 600;
+        user-select: none;
+        }
+
+        @media (max-width: 768px) {
+        width: 1.75rem;
+        height: 1.75rem;
+
+        span {
+            font-size: 0.8rem;
+        }
+        }
+    }
+
+    // Responsive breakpoints
+    @media (max-width: 480px) {
+        padding: 1rem;
+
+        &__content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        }
+
+        &__actions {
+        align-self: flex-end;
+        }
+
+        &__welcome {
+        width: 100%;
+        }
+    }
+}
