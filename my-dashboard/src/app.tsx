@@ -3,9 +3,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './Pages/Dashboard/Dashboard';
 import Microservices from './Pages/Microservices/Microservices';
-//import Analytics from './pages/Analytics/Analytics';
-//import Settings from './pages/Settings/Settings';
-//import MicroserviceDetail from './pages/MicroserviceDetail/MicroserviceDetail';
+import Settings from './Pages/Settings/Settings';
 import Layout from './components/Layout/Layout';
 import AuthContainer from './Pages/AuthContainer/AuthContainer';
 import './main.scss';
@@ -19,11 +17,12 @@ const App: React.FC = () => {
           <Route path="/" element={<Layout />}>
             {/* Dashboard como página principal */}
             <Route index element={<Dashboard />} />
-            
+
             {/* Rutas de navegación */}
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="microservices" element={<Microservices />} />
-            
+            <Route path="settings" element={<Settings />} />
+
             {/* Redirección para rutas no encontradas */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

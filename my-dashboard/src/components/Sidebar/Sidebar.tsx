@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { 
-    LayoutDashboard, 
-    Server, 
-    BarChart3, 
+import {
+    LayoutDashboard,
+    Server,
     Settings as SettingsIcon,
+    ChevronLeft,
+    ChevronRight,
 } from 'lucide-react';
 import './Sidebar.scss';
 
@@ -14,59 +15,100 @@ interface MenuItem {
     label: string;
 }
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+    onToggle?: (collapsed: boolean) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onToggle }) => {
+    const [isCollapsed, setIsCollapsed] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 1024) {
+                setIsCollapsed(true);
+                if (onToggle) {
+                    onToggle(true);
+                }
+            }
+        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, [onToggle]);
+
     const menuItems: MenuItem[] = [
-        { 
-            path: '/dashboard', 
-            icon: <LayoutDashboard size={20} />, 
-            label: 'Dashboard' 
+        {
+            path: '/dashboard',
+            icon: <LayoutDashboard size={20} />,
+            label: 'Dashboard'
         },
-        { 
-            path: '/microservices', 
-            icon: <Server size={20} />, 
+        {
+            path: '/microservices',
+            icon: <Server size={20} />,
             label: 'Microservicios'
         },
-        { 
-            path: '/analytics', 
-            icon: <BarChart3 size={20} />, 
-            label: 'Analytics' 
-        },
-        { 
-            path: '/settings', 
-            icon: <SettingsIcon size={20} />, 
-            label: 'Configuración' 
+        {
+            path: '/settings',
+            icon: <SettingsIcon size={20} />,
+            label: 'Configuración'
         }
     ];
 
-    return (
-        <aside className="sidebar">
-            {/* Header */}
-            <div className="sidebar__header">
-                <div className="sidebar__logo">
-                    <div className="logo-icon">M</div>
-                    <span className="logo-text">MicroManager</span>
-                </div>
-            </div>
+    const toggleSidebar = () => {
+        const newCollapsedState = !isCollapsed;
+        setIsCollapsed(newCollapsedState);
+        if (onToggle) {
+            onToggle(newCollapsedState);
+        }
+    };
 
-            {/* Navigation */}
-            <nav className="sidebar__nav">
-                <ul className="sidebar__nav-list">
-                    {menuItems.map((item) => (
-                        <li key={item.path} className="sidebar__nav-item">
-                            <NavLink
-                                to={item.path}
-                                className={({ isActive }) =>
-                                    `sidebar__nav-link ${isActive ? 'sidebar__nav-link--active' : ''}`
-                                }
-                            >
-                                <span className="sidebar__nav-icon">{item.icon}</span>
-                                <span className="sidebar__nav-text">{item.label}</span>
-                            </NavLink>
-                        </li>
-                    ))}
-                </ul>
-            </nav>
-        </aside>
+    return (
+        <>
+            {/* Sidebar */}
+            <aside className={`sidebar ${isCollapsed ? 'sidebar--collapsed' : ''}`}>
+                {/* Header */}
+                <div className="sidebar__header">
+                    {!isCollapsed ? (
+                        <div className="sidebar__logo">
+                            <div className="logo-icon">M</div>
+                            <span className="logo-text">MicroManager</span>
+                        </div>
+                    ) : (
+                        <div className="logo-icon">M</div>
+                    )}
+                </div>
+
+                {/* Navigation */}
+                <nav className="sidebar__nav">
+                    <ul className="sidebar__nav-list">
+                        {menuItems.map((item) => (
+                            <li key={item.path} className="sidebar__nav-item">
+                                <NavLink
+                                    to={item.path}
+                                    className={({ isActive }) =>
+                                        `sidebar__nav-link ${isActive ? 'sidebar__nav-link--active' : ''}`
+                                    }
+                                    title={isCollapsed ? item.label : undefined}
+                                >
+                                    <span className="sidebar__nav-icon">{item.icon}</span>
+                                    <span className="sidebar__nav-text">{item.label}</span>
+                                </NavLink>
+                            </li>
+                        ))}
+                    </ul>
+                </nav>
+
+                {/* Toggle Button - Inside Sidebar at Bottom */}
+                <button 
+                    className="sidebar__toggle" 
+                    onClick={toggleSidebar}
+                    aria-label={isCollapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
+                >
+                    {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+                </button>
+            </aside>
+        </>
     );
 };
 
