@@ -11,21 +11,21 @@ const Dashboard: React.FC = () => {
       {/* Stats Cards */}
       <div className="dashboard__stats">
         <StatsCard
-          title="Microservicios Activos"
+          title="Microservicios Creados"
           value="12"
           subtitle="3 nuevos esta semana"
           color="yellow"
           icon={<Server className="stats-card__icon" />}
         />
         <StatsCard
-          title="Total Endpoints"
-          value="48"
-          subtitle="8 endpoints nuevos"
+          title="Ultima actualización"
+          value="2m"
+          subtitle="Registrado como 'user-service'"
           color="purple"
           icon={<Globe className="stats-card__icon" />}
         />
         <StatsCard
-          title="Servicios Saludables"
+          title="Microservicios Saludables"
           value="11"
           subtitle="92% de disponibilidad"
           color="green"

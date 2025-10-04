@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Eye, Edit, Trash2 } from 'lucide-react';
+import {Eye, Edit, Trash2 } from 'lucide-react';
 import './MicroservicesTable.scss';
 
 interface Microservice {
@@ -22,10 +22,6 @@ const MicroservicesTable: React.FC = () => {
         <div className="microservices-table">
         <div className="microservices-table__header">
             <h2 className="microservices-table__title">Microservicios Registrados</h2>
-            <button className="microservices-table__add-btn">
-            <Plus className="microservices-table__add-icon" />
-            Nuevo Microservicio
-            </button>
         </div>
         
         <div className="microservices-table__container">
