@@ -1,4 +1,3 @@
-// components/ActivityChart/ActivityChart.tsx
 import React, { useRef} from 'react';
 import {
     Chart as ChartJS,
@@ -62,7 +61,7 @@ import {
         labels,
         datasets: [
         {
-            label: 'Deployments',
+            label: 'Activo',
             data: deployments,
             borderColor: '#B483EE',
             backgroundColor: 'rgba(139, 92, 246, 0.1)',
@@ -74,19 +73,7 @@ import {
             pointHoverRadius: 6,
         },
         {
-            label: 'Requests (x100)',
-            data: requests.map(r => r / 100), // Escalar para mejor visualización
-            borderColor: '#F5BF5B',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            fill: true,
-            tension: 0.4,
-            pointBackgroundColor: '#F5BF5B',
-            pointBorderColor: '#F5BF5B',
-            pointRadius: 4,
-            pointHoverRadius: 6,
-        },
-        {
-            label: 'Errores',
+            label: 'Inactivo',
             data: errors,
             borderColor: '#ef4444',
             backgroundColor: 'rgba(239, 68, 68, 0.1)',
@@ -128,13 +115,6 @@ import {
             cornerRadius: 8,
             displayColors: true,
             callbacks: {
-            label: function(context: any) {
-                let label = context.dataset.label || '';
-                if (label === 'Requests (x100)') {
-                return `Requests: ${(context.parsed.y * 100).toLocaleString()}`;
-                }
-                return `${label}: ${context.parsed.y}`;
-            }
             }
         },
         },
@@ -192,25 +172,6 @@ import {
         
         <div className="activity-chart__chart-container">
             <Line ref={chartRef} data={chartData} options={chartOptions} />
-        </div>
-
-        <div className="activity-chart__stats">
-            <div className="activity-chart__stat">
-            <div className="activity-chart__stat-value">{stats.totalDeployments}</div>
-            <div className="activity-chart__stat-label">Deployments</div>
-            </div>
-            <div className="activity-chart__stat">
-            <div className="activity-chart__stat-value">{stats.avgRequests.toLocaleString()}</div>
-            <div className="activity-chart__stat-label">Avg Requests</div>
-            </div>
-            <div className="activity-chart__stat">
-            <div className="activity-chart__stat-value">{stats.totalErrors}</div>
-            <div className="activity-chart__stat-label">Total Errors</div>
-            </div>
-            <div className="activity-chart__stat">
-            <div className="activity-chart__stat-value">{stats.uptime}%</div>
-            <div className="activity-chart__stat-label">Uptime</div>
-            </div>
         </div>
         </div>
     );
