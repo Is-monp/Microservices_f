@@ -1,9 +1,8 @@
 .microservice-card {
-  background: linear-gradient(145deg, #0f0f0f 0%, #0a0a0a 100%);
+  background: #0a0a0a;
   border-radius: 1.25rem;
   padding: 1.75rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(139, 92, 246, 0.1);
   animation: fadeInUp 0.5s ease-out;
   position: relative;
   overflow: hidden;
@@ -23,7 +22,6 @@
   &:hover {
     transform: translateY(-2px);
     border-color: rgba(139, 92, 246, 0.3);
-    box-shadow: 0 20px 40px rgba(139, 92, 246, 0.1);
 
     &::before {
       opacity: 1;
@@ -45,15 +43,13 @@
   }
 
   &__icon {
-    background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+    background: #8b5cf6;
     border-radius: 0.875rem;
     padding: 0.875rem;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-
     svg {
       width: 1.5rem;
       height: 1.5rem;
@@ -164,8 +160,8 @@
   &__icon-btn {
     flex: 1;
     padding: 0.75rem;
-    background: rgba(139, 92, 246, 0.05);
-    border: 1px solid rgba(139, 92, 246, 0.15);
+    background: transparent;
+    border: none;
     border-radius: 0.75rem;
     color: #9ca3af;
     cursor: pointer;
@@ -177,20 +173,31 @@
     svg {
       width: 1.125rem;
       height: 1.125rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     &:hover {
-      background: rgba(139, 92, 246, 0.1);
-      border-color: rgba(139, 92, 246, 0.3);
       color: #a855f7;
-      transform: translateY(-1px);
+
+      svg {
+        transform: scale(1.2) rotate(5deg);
+      }
+    }
+
+    &:active {
+      svg {
+        transform: scale(0.9);
+      }
     }
 
     &--delete {
       &:hover {
-        background: rgba(239, 68, 68, 0.1);
-        border-color: rgba(239, 68, 68, 0.3);
         color: #ef4444;
+
+        svg {
+          transform: scale(1.2) rotate(-5deg);
+          animation: shake 0.5s ease-in-out;
+        }
       }
     }
   }
@@ -204,6 +211,21 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: scale(1.2) rotate(-5deg);
+  }
+  25% {
+    transform: scale(1.2) rotate(5deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(-5deg);
+  }
+  75% {
+    transform: scale(1.2) rotate(5deg);
   }
 }
 

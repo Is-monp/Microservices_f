@@ -15,7 +15,6 @@ const Microservices: React.FC = () => {
       status: 'running',
       description: 'Servicio de gestión de usuarios con autenticación',
       code: `const express = require('express');\nconst app = express();\n\napp.get('/users', (req, res) => {\n  res.json({ users: [] });\n});\n\napp.listen(3000);`,
-      endpoints: 8,
       lastUpdated: 'hace 2 min',
     },
     {
@@ -25,7 +24,6 @@ const Microservices: React.FC = () => {
       status: 'running',
       description: 'Servicio de procesamiento de pagos',
       code: `const { ApolloServer, gql } = require('apollo-server');\n\nconst server = new ApolloServer({});\nserver.listen();`,
-      endpoints: 12,
       lastUpdated: 'hace 5 min',
     },
     {
@@ -35,7 +33,6 @@ const Microservices: React.FC = () => {
       status: 'stopped',
       description: 'Servicio de notificaciones en tiempo real',
       code: `const WebSocket = require('ws');\nconst wss = new WebSocket.Server({ port: 8080 });`,
-      endpoints: 4,
       lastUpdated: 'hace 1 hora',
     },
   ]);
@@ -58,7 +55,6 @@ const Microservices: React.FC = () => {
       status: 'stopped',
       description: data.description,
       code: data.code,
-      endpoints: 0,
       lastUpdated: 'hace un momento',
     };
 
@@ -121,7 +117,6 @@ const Microservices: React.FC = () => {
           onClick={() => setIsCreateModalOpen(true)}
         >
           <Plus className="microservices-page__create-icon" />
-          Nuevo Microservicio
         </button>
       </div>
 

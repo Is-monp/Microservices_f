@@ -1,4 +1,4 @@
-import React, { useRef} from 'react';
+import React, { useRef } from 'react';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -9,12 +9,12 @@ import {
     Tooltip,
     Legend,
     Filler,
-    } from 'chart.js';
-    import { Line } from 'react-chartjs-2';
-    import './ActivityChart.scss';
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+import './ActivityChart.scss';
 
-    // Registrar componentes de Chart.js
-    ChartJS.register(
+// Registrar componentes de Chart.js
+ChartJS.register(
     CategoryScale,
     LinearScale,
     PointElement,
@@ -23,39 +23,36 @@ import {
     Tooltip,
     Legend,
     Filler
-    );
+);
 
-    const ActivityChart: React.FC = () => {
-    const chartRef = useRef<ChartJS<'line'>>(null);
+const ActivityChart: React.FC = () => {
+const chartRef = useRef<ChartJS<'line'>>(null);
 
-    // Datos de ejemplo para los últimos 30 días
-    const generateActivityData = () => {
-        const labels = [];
-        const deployments = [];
-        const requests = [];
-        const errors = [];
-        
-        const today = new Date();
-        
-        for (let i = 29; i >= 0; i--) {
+  // Datos de ejemplo para los últimos 30 días
+const generateActivityData = () => {
+    const labels = [];
+    const deployments = [];
+    const errors = [];
+    
+    const today = new Date();
+    
+    for (let i = 29; i >= 0; i--) {
         const date = new Date(today);
         date.setDate(today.getDate() - i);
         
         labels.push(date.toLocaleDateString('es', { 
             month: 'short', 
             day: 'numeric' 
-        }));
-        
-        // Generar datos simulados
-        deployments.push(Math.floor(Math.random() * 15) + 5);
-        requests.push(Math.floor(Math.random() * 1000) + 200);
-        errors.push(Math.floor(Math.random() * 20) + 1);
-        }
-        
-        return { labels, deployments, requests, errors };
-    };
+    }));
+      // Generar datos simulados
+      deployments.push(Math.floor(Math.random() * 15) + 5);
+      errors.push(Math.floor(Math.random() * 20) + 1);
+    }
+    
+    return { labels, deployments, errors };
+};
 
-    const { labels, deployments, requests, errors } = generateActivityData();
+    const { labels, deployments, errors } = generateActivityData();
 
     const chartData = {
         labels,
@@ -114,11 +111,9 @@ import {
             borderWidth: 1,
             cornerRadius: 8,
             displayColors: true,
-            callbacks: {
-            }
         },
-        },
-        scales: {
+    },
+    scales: {
         x: {
             grid: {
             color: 'rgba(107, 114, 128, 0.2)',
@@ -150,11 +145,11 @@ import {
         point: {
             hoverBorderWidth: 2,
         },
-        },
+    },
     };
 
     return (
-        <div className="activity-chart">
+    <div className="activity-chart">
         <div className="activity-chart__header">
             <h2 className="activity-chart__title">Actividad de Microservicios</h2>
             <div className="activity-chart__period">Últimos 30 días</div>
