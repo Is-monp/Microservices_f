@@ -4,7 +4,7 @@ import './MicroservicesTable.scss';
 interface Microservice {
     name: string;
     type: string;
-    status: 'Activo' | 'Inactivo';
+    status: 'Activo' | 'Detenido';
     lastUpdated: string;
 }
 
@@ -12,7 +12,7 @@ const MicroservicesTable: React.FC = () => {
     const microservices: Microservice[] = [
         { name: 'user-service', type: 'REST API', status: 'Activo', lastUpdated: '2 min ago' },
         { name: 'payment-service', type: 'GraphQL', status: 'Activo', lastUpdated: '5 min ago' },
-        { name: 'notification-service', type: 'WebSocket', status: 'Inactivo', lastUpdated: '1 hour ago' },
+        { name: 'notification-service', type: 'WebSocket', status: 'Detenido', lastUpdated: '1 hour ago' },
         { name: 'auth-service', type: 'REST API', status: 'Activo', lastUpdated: '30 min ago' }
     ];
 

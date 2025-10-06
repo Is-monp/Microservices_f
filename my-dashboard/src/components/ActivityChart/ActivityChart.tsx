@@ -73,7 +73,7 @@ import {
             pointHoverRadius: 6,
         },
         {
-            label: 'Inactivo',
+            label: 'Detenido',
             data: errors,
             borderColor: '#ef4444',
             backgroundColor: 'rgba(239, 68, 68, 0.1)',
@@ -151,16 +151,6 @@ import {
             hoverBorderWidth: 2,
         },
         },
-    };
-
-    
-
-    // Estadísticas resumidas
-    const stats = {
-        totalDeployments: deployments.reduce((a, b) => a + b, 0),
-        avgRequests: Math.round(requests.reduce((a, b) => a + b, 0) / requests.length),
-        totalErrors: errors.reduce((a, b) => a + b, 0),
-        uptime: 99.8,
     };
 
     return (

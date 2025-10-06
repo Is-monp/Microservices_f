@@ -1,5 +1,5 @@
 import React from 'react';
-import { Server, Activity, Circle, Play, Pause, Edit, Trash2, Info } from 'lucide-react';
+import { Server, Circle, Play, Pause, Edit, Trash2, Info } from 'lucide-react';
 import './MicroserviceCard.scss';
 
 export interface MicroserviceData {
@@ -9,7 +9,6 @@ export interface MicroserviceData {
   status: 'running' | 'stopped' | 'error';
   description: string;
   code: string;
-  endpoints: number;
   lastUpdated: string;
 }
 
@@ -76,10 +75,6 @@ const MicroserviceCard: React.FC<MicroserviceCardProps> = ({
         <p className="microservice-card__description">{microservice.description}</p>
 
         <div className="microservice-card__metrics">
-          <div className="microservice-card__metric">
-            <Activity className="microservice-card__metric-icon" />
-            <span>{microservice.endpoints} endpoints</span>
-          </div>
           <div className="microservice-card__metric">
             <span className="microservice-card__time">Actualizado {microservice.lastUpdated}</span>
           </div>
