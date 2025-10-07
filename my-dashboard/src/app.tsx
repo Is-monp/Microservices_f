@@ -14,7 +14,7 @@ const App: React.FC = () => {
       <Router>
         <Routes>
           {/* Ruta principal con Layout */}
-          <Route path="/" element={<Layout />}>
+          <Route path="/" element={<Layout/>}>
             {/* Dashboard como página principal */}
             <Route index element={<Dashboard />} />
 

@@ -19,12 +19,12 @@ const AuthContainer: React.FC = () => {
                     <div className="logo-icon">M</div>
                     <span className="logo-text">MicroManager</span>
                 </div>
-                <h1 className="auth-title">
+                <h1 className="auth-title" key={isLogin ? 'login-title' : 'register-title'}>
                     {isLogin ? 'Welcome Back' : 'Get Started with Us'}
                 </h1>
-                <p className="auth-subtitle">
-                {isLogin 
-                    ? 'Manage. Visualize. All in one place' 
+                <p className="auth-subtitle" key={isLogin ? 'login-subtitle' : 'register-subtitle'}>
+                {isLogin
+                    ? 'Manage. Visualize. All in one place'
                     : 'Complete these easy steps to register your account'
                 }
                 </p>

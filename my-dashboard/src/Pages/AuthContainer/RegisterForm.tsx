@@ -56,7 +56,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onToggleMode }) => {
                         type="email"
                         id="email"
                         name="email"
-                        placeholder="eg. johnfrans@gmail.com"
+                        placeholder="eg. papajohns@gmail.com"
                         value={formData.email}
                         onChange={handleChange}
                         required
