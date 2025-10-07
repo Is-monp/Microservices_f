@@ -10,6 +10,7 @@ export interface MicroserviceData {
   description: string;
   code: string;
   lastUpdated: string;
+  endpointUrl: string;
 }
 
 interface MicroserviceCardProps {

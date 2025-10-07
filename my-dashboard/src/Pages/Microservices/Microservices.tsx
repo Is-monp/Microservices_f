@@ -16,6 +16,7 @@ const Microservices: React.FC = () => {
       description: 'Servicio de gestión de usuarios con autenticación',
       code: `const express = require('express');\nconst app = express();\n\napp.get('/users', (req, res) => {\n  res.json({ users: [] });\n});\n\napp.listen(3000);`,
       lastUpdated: 'hace 2 min',
+      endpointUrl: 'http://localhost:8080/user-service',
     },
     {
       id: '2',
@@ -25,6 +26,7 @@ const Microservices: React.FC = () => {
       description: 'Servicio de procesamiento de pagos',
       code: `const { ApolloServer, gql } = require('apollo-server');\n\nconst server = new ApolloServer({});\nserver.listen();`,
       lastUpdated: 'hace 5 min',
+      endpointUrl: 'http://localhost:8080/payment-service',
     },
     {
       id: '3',
@@ -34,6 +36,7 @@ const Microservices: React.FC = () => {
       description: 'Servicio de notificaciones en tiempo real',
       code: `const WebSocket = require('ws');\nconst wss = new WebSocket.Server({ port: 8080 });`,
       lastUpdated: 'hace 1 hora',
+      endpointUrl: 'http://localhost:8080/notification-service',
     },
   ]);
 
@@ -56,6 +59,7 @@ const Microservices: React.FC = () => {
       description: data.description,
       code: data.code,
       lastUpdated: 'hace un momento',
+      endpointUrl: `http://localhost:8080/${data.name}`,
     };
 
     setMicroservices([...microservices, newMicroservice]);

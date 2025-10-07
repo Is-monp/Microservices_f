@@ -78,8 +78,8 @@ const MicroserviceStatusModal: React.FC<MicroserviceStatusModalProps> = ({
                 <span className="status-modal__info-value">{microservice.description}</span>
               </div>
               <div className="status-modal__info-item">
-                <span className="status-modal__info-label">Endpoints:</span>
-                <span className="status-modal__info-value">{microservice.endpoints}</span>
+                <span className="status-modal__info-label">Endpoint Link:</span>
+                <span className="status-modal__info-value">{microservice.endpointUrl}</span>
               </div>
               <div className="status-modal__info-item">
                 <span className="status-modal__info-label">Última actualización:</span>
