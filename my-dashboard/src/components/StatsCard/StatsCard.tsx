@@ -1,4 +1,3 @@
-// components/Statscard/Statscard.tsx
 import React from 'react';
 import './Statscard.scss';
 

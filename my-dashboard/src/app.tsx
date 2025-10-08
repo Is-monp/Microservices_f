@@ -1,4 +1,3 @@
-// 1. App.tsx - Configuración principal del router
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './Pages/Dashboard/Dashboard';

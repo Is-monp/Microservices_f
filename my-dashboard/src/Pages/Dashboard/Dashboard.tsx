@@ -1,5 +1,5 @@
 import React from 'react';
-import { Server, Globe, Activity, Eye } from 'lucide-react';
+import { Server, Globe, Activity} from 'lucide-react';
 import StatsCard from '../../components/StatsCard/StatsCard';
 import MicroservicesTable from '../../components/MicroservicesTable/MicroservicesTable';
 import ActivityChart from '../../components/ActivityChart/ActivityChart';
@@ -30,13 +30,6 @@ const Dashboard: React.FC = () => {
           subtitle="92% de disponibilidad"
           color="green"
           icon={<Activity className="stats-card__icon" />}
-        />
-        <StatsCard
-          title="Latencia Promedio"
-          value="45ms"
-          subtitle="15ms mejor que ayer"
-          color="blue"
-          icon={<Eye className="stats-card__icon" />}
         />
       </div>
 
