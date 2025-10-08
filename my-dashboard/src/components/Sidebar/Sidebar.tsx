@@ -29,6 +29,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onToggle }) => {
                 if (onToggle) {
                     onToggle(true);
                 }
+            } else {
+                // En pantallas grandes, mantener expandido por defecto
+                setIsCollapsed(false);
+                if (onToggle) {
+                    onToggle(false);
+                }
             }
         };
 
@@ -40,17 +46,17 @@ const Sidebar: React.FC<SidebarProps> = ({ onToggle }) => {
     const menuItems: MenuItem[] = [
         {
             path: '/dashboard',
-            icon: <LayoutDashboard size={20} />,
+            icon: <LayoutDashboard size={22} />,
             label: 'Dashboard'
         },
         {
             path: '/microservices',
-            icon: <Server size={20} />,
+            icon: <Server size={22} />,
             label: 'Microservicios'
         },
         {
             path: '/settings',
-            icon: <SettingsIcon size={20} />,
+            icon: <SettingsIcon size={22} />,
             label: 'Configuración'
         }
     ];
@@ -105,7 +111,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onToggle }) => {
                     onClick={toggleSidebar}
                     aria-label={isCollapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
                 >
-                    {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+                    {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
                 </button>
             </aside>
         </>

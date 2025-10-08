@@ -12,8 +12,27 @@
     border-right: 1px solid rgba(139, 92, 246, 0.1);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
+    // Pantallas grandes (Desktop)
+    @media (min-width: 1440px) {
+        width: 18rem;
+        padding: 2rem;
+    }
+
+    @media (min-width: 1920px) {
+        width: 20rem;
+        padding: 2.5rem;
+    }
+
     &--collapsed {
         width: 5rem;
+
+        @media (min-width: 1440px) {
+            width: 5.5rem;
+        }
+
+        @media (min-width: 1920px) {
+            width: 6rem;
+        }
 
         .sidebar__nav-text {
             opacity: 0;
@@ -24,6 +43,10 @@
         .sidebar__nav-link {
             justify-content: center;
             padding: 0.875rem 0.5rem;
+
+            @media (min-width: 1440px) {
+                padding: 1rem 0.75rem;
+            }
         }
 
         .sidebar__header {
@@ -33,6 +56,10 @@
         .sidebar__toggle {
             justify-content: center;
             padding: 0.75rem;
+
+            @media (min-width: 1440px) {
+                padding: 1rem;
+            }
         }
     }
 
@@ -43,6 +70,16 @@
         justify-content: flex-start;
         margin-bottom: 2rem;
         min-height: 40px;
+
+        @media (min-width: 1440px) {
+            margin-bottom: 2.5rem;
+            min-height: 48px;
+        }
+
+        @media (min-width: 1920px) {
+            margin-bottom: 3rem;
+            min-height: 52px;
+        }
     }
 
     // Logo container
@@ -50,6 +87,10 @@
         display: flex;
         align-items: center;
         gap: 0.75rem;
+
+        @media (min-width: 1440px) {
+            gap: 1rem;
+        }
     }
 
     .logo-icon {
@@ -66,6 +107,20 @@
         flex-shrink: 0;
         backdrop-filter: blur(10px);
         animation: scaleIn 0.4s ease-out;
+
+        @media (min-width: 1440px) {
+            width: 48px;
+            height: 48px;
+            font-size: 22px;
+            border-radius: 14px;
+        }
+
+        @media (min-width: 1920px) {
+            width: 52px;
+            height: 52px;
+            font-size: 24px;
+            border-radius: 16px;
+        }
     }
 
     .logo-text {
@@ -76,6 +131,14 @@
         overflow: hidden;
         animation: typewriter 0.8s steps(12) 0.5s both;
         width: 0;
+
+        @media (min-width: 1440px) {
+            font-size: 22px;
+        }
+
+        @media (min-width: 1920px) {
+            font-size: 24px;
+        }
     }
 
     // Navigation
@@ -96,6 +159,10 @@
         margin-bottom: 0.5rem;
         animation: slideRight 0.4s ease-out backwards;
 
+        @media (min-width: 1440px) {
+            margin-bottom: 0.75rem;
+        }
+
         @for $i from 1 through 5 {
             &:nth-child(#{$i}) {
                 animation-delay: #{$i * 0.1}s;
@@ -115,6 +182,16 @@
         position: relative;
         overflow: visible;
 
+        @media (min-width: 1440px) {
+            padding: 1rem 1.25rem;
+            border-radius: 0.875rem;
+        }
+
+        @media (min-width: 1920px) {
+            padding: 1.125rem 1.5rem;
+            border-radius: 1rem;
+        }
+
         &::before {
             content: '';
             position: absolute;
@@ -128,6 +205,20 @@
             border-left: 8px solid transparent;
             opacity: 0;
             transition: all 0.2s ease;
+
+            @media (min-width: 1440px) {
+                left: -2rem;
+                border-top: 8px solid transparent;
+                border-bottom: 8px solid transparent;
+                border-left: 10px solid transparent;
+            }
+
+            @media (min-width: 1920px) {
+                left: -2.5rem;
+                border-top: 9px solid transparent;
+                border-bottom: 9px solid transparent;
+                border-left: 12px solid transparent;
+            }
         }
 
         &--active {
@@ -154,8 +245,16 @@
         align-items: center;
         justify-content: center;
         transition: all 0.2s ease;
-        min-width: 20px;
+        min-width: 22px;
         color: inherit;
+
+        @media (min-width: 1440px) {
+            min-width: 24px;
+        }
+
+        @media (min-width: 1920px) {
+            min-width: 26px;
+        }
 
         svg {
             transition: color 0.2s ease;
@@ -165,12 +264,23 @@
     &__nav-text {
         margin-left: 0.75rem;
         font-weight: 500;
+        font-size: 15px;
         white-space: nowrap;
         transition: all 0.3s ease;
         overflow: hidden;
+
+        @media (min-width: 1440px) {
+            margin-left: 1rem;
+            font-size: 16px;
+        }
+
+        @media (min-width: 1920px) {
+            margin-left: 1.25rem;
+            font-size: 17px;
+        }
     }
 
-    // Toggle Button - Minimalist Design
+    // Toggle Button
     &__toggle {
         width: 100%;
         display: flex;
@@ -185,6 +295,18 @@
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         margin-top: 1rem;
 
+        @media (min-width: 1440px) {
+            padding: 1rem;
+            border-radius: 0.875rem;
+            margin-top: 1.5rem;
+        }
+
+        @media (min-width: 1920px) {
+            padding: 1.125rem;
+            border-radius: 1rem;
+            margin-top: 2rem;
+        }
+
         &:hover {
             background: rgba(139, 92, 246, 0.1);
             color: #8b5cf6;
@@ -197,10 +319,6 @@
 
         &:hover svg {
             transform: scale(1.1);
-        }
-
-        @media (max-width: 1024px) {
-            display: flex;
         }
     }
 
@@ -228,7 +346,6 @@
             padding: 0.75rem;
         }
 
-        // Disable logo animations on mobile
         .logo-icon {
             animation: none;
         }
