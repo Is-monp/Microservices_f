@@ -14,29 +14,35 @@
         position: relative;
         z-index: 1;
 
-        // Ajustar margin para pantallas grandes
+        // Ajustar margin para pantallas grandes cuando está expandido
         @media (min-width: 1440px) {
-            margin-left: 18rem; // Coincide con el sidebar en pantallas grandes
+            margin-left: 18rem;
         }
 
         @media (min-width: 1920px) {
-            margin-left: 20rem; // Coincide con el sidebar en pantallas extra grandes
+            margin-left: 20rem;
         }
 
-        &--expanded {
-            margin-left: 5rem; // Ancho del sidebar colapsado
+        // En móvil, el sidebar está colapsado por defecto
+        @media (max-width: 1024px) {
+            margin-left: 5rem;
+        }
+    }
 
-            @media (min-width: 1440px) {
-                margin-left: 5.5rem;
-            }
+    // Cuando el sidebar está colapsado
+    &__content--expanded {
+        margin-left: 5rem !important; // Forzar el margen cuando está colapsado
 
-            @media (min-width: 1920px) {
-                margin-left: 6rem;
-            }
+        @media (min-width: 1440px) {
+            margin-left: 5.5rem !important;
+        }
+
+        @media (min-width: 1920px) {
+            margin-left: 6rem !important;
         }
 
         @media (max-width: 1024px) {
-            margin-left: 5rem; // En móvil el sidebar está colapsado por defecto
+            margin-left: 5rem !important;
         }
     }
 
