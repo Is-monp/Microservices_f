@@ -87,9 +87,8 @@ const Microservices: React.FC = () => {
       const formData = new FormData();
       const pythonFile = new File([data.code], 'app.py', { type: 'text/x-python' });
 
-      // Enviamos ambas claves posibles para máxima compatibilidad con backend Go
-      formData.append('file', pythonFile, 'app.py');
-      formData.append('app.py', pythonFile, 'app.py');
+      // El backend en Go espera el campo llamado "app"
+      formData.append('app', pythonFile, 'app.py');
       formData.append('name', data.name);
 
       console.log('Enviando FormData a /new/image ...');
@@ -111,6 +110,7 @@ const Microservices: React.FC = () => {
       if (!uploadResponse.ok) {
         throw new Error(`Error ${uploadResponse.status}: ${uploadText}`);
       }
+
       // Paso 2: crear el contenedor con más campos
       const containerPayload = {
         image: data.name,
