@@ -15,16 +15,14 @@ const Microservices: React.FC = () => {
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [selectedMicroservice, setSelectedMicroservice] = useState<MicroserviceData | null>(null);
 
-  // 🔹 Cargar datos desde el backend
+  // Cargar microservicios del backend
   const fetchMicroservices = async () => {
     setIsLoading(true);
     setError(null);
 
     try {
       const token = localStorage.getItem('accessToken');
-      if (!token) {
-        throw new Error('No se encontró el token de autenticación');
-      }
+      if (!token) throw new Error('No se encontró el token de autenticación');
 
       const API_URL = `${import.meta.env.VITE_API_URL}/containers/list`;
 
@@ -42,9 +40,6 @@ const Microservices: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('✅ Datos recibidos:', data);
-
-      // Transformar los datos a tu estructura interna
       const mappedMicroservices: MicroserviceData[] = data.containers.map(
         (item: any, index: number) => ({
           id: (index + 1).toString(),
@@ -63,7 +58,7 @@ const Microservices: React.FC = () => {
 
       setMicroservices(mappedMicroservices);
     } catch (err) {
-      console.error('💥 Error al obtener microservicios:', err);
+      console.error('Error al obtener microservicios:', err);
       setError(err instanceof Error ? err.message : 'Error desconocido');
     } finally {
       setIsLoading(false);
@@ -74,53 +69,128 @@ const Microservices: React.FC = () => {
     fetchMicroservices();
   }, []);
 
-  // 🔹 Crear microservicio local (solo visual)
-  const handleCreateMicroservice = (data: {
+  // Crear microservicio (proceso de dos pasos)
+  const handleCreateMicroservice = async (data: {
     name: string;
     type: string;
     description: string;
     code: string;
   }) => {
-    const newMicroservice: MicroserviceData = {
-      id: Date.now().toString(),
-      name: data.name,
-      type: data.type,
-      status: 'stopped',
-      description: data.description,
-      code: data.code,
-      lastUpdated: 'hace un momento',
-      endpointUrl: `${import.meta.env.VITE_API_URL}/containers/${data.name}`,
-    };
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      alert('No se encontró el token de autenticación.');
+      return;
+    }
 
-    setMicroservices([...microservices, newMicroservice]);
-  };
+    try {
+      // Paso 1: subir el archivo Python como imagen
+      const formData = new FormData();
+      const pythonFile = new File([data.code], 'app.py', { type: 'text/x-python' });
 
-  const handleEditMicroservice = (microservice: MicroserviceData) => {
-    setSelectedMicroservice(microservice);
-    setIsEditModalOpen(true);
-  };
+      // Enviamos ambas claves posibles para máxima compatibilidad con backend Go
+      formData.append('file', pythonFile, 'app.py');
+      formData.append('app.py', pythonFile, 'app.py');
+      formData.append('name', data.name);
 
-  const handleSaveCode = (code: string) => {
-    if (selectedMicroservice) {
-      setMicroservices(
-        microservices.map((ms) =>
-          ms.id === selectedMicroservice.id
-            ? { ...ms, code, lastUpdated: 'hace un momento' }
-            : ms
-        )
+      console.log('Enviando FormData a /new/image ...');
+      for (const [key, value] of formData.entries()) {
+        console.log('Campo en FormData:', key, value);
+      }
+
+      const uploadResponse = await fetch(`${import.meta.env.VITE_API_URL}/new/image`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const uploadText = await uploadResponse.text();
+      console.log('Respuesta del backend (/new/image):', uploadText);
+
+      if (!uploadResponse.ok) {
+        throw new Error(`Error ${uploadResponse.status}: ${uploadText}`);
+      }
+      // Paso 2: crear el contenedor con más campos
+      const containerPayload = {
+        image: data.name,
+        type: data.type,
+        description: data.description,
+      };
+
+      const containerResponse = await fetch(
+        `${import.meta.env.VITE_API_URL}/new/container`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(containerPayload),
+        }
       );
+
+      const containerText = await containerResponse.text();
+      if (!containerResponse.ok) {
+        throw new Error(`Error ${containerResponse.status}: ${containerText}`);
+      }
+
+      alert('Contenedor creado correctamente.');
+      setIsCreateModalOpen(false);
+      await fetchMicroservices();
+    } catch (error) {
+      console.error('Error al crear microservicio:', error);
+      alert('No se pudo crear el contenedor. Revisa los logs.');
     }
   };
 
-  const handleDeleteMicroservice = (id: string) => {
-    const microservice = microservices.find((ms) => ms.id === id);
-    if (microservice) {
-      const confirmDelete = window.confirm(
-        `¿Estás seguro de que quieres eliminar "${microservice.name}"?`
+  // Eliminar microservicio
+  const handleDeleteMicroservice = async (id: string, name: string) => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      alert('No se encontró el token de autenticación.');
+      return;
+    }
+
+    const confirmDelete = window.confirm(
+      `¿Seguro que deseas eliminar el contenedor "${name}"?`
+    );
+    if (!confirmDelete) return;
+
+    try {
+      // Paso 1: detener contenedor antes de eliminar
+      await fetch(`${import.meta.env.VITE_API_URL}/stop/container`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ image: name }),
+      });
+
+      // Paso 2: eliminar contenedor
+      const removeResponse = await fetch(
+        `${import.meta.env.VITE_API_URL}/remove/container`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ image: name }),
+        }
       );
-      if (confirmDelete) {
-        setMicroservices(microservices.filter((ms) => ms.id !== id));
+
+      const removeText = await removeResponse.text();
+      if (!removeResponse.ok) {
+        throw new Error(`Error ${removeResponse.status}: ${removeText}`);
       }
+
+      alert(`Contenedor "${name}" eliminado correctamente.`);
+      await fetchMicroservices();
+    } catch (error) {
+      console.error('Error al eliminar contenedor:', error);
+      alert('No se pudo eliminar el contenedor.');
     }
   };
 
@@ -129,18 +199,38 @@ const Microservices: React.FC = () => {
     setIsStatusModalOpen(true);
   };
 
-  const handleToggleStatus = (id: string) => {
-    setMicroservices(
-      microservices.map((ms) =>
-        ms.id === id
-          ? {
-              ...ms,
-              status: ms.status === 'running' ? 'stopped' : 'running',
-              lastUpdated: 'hace un momento',
-            }
-          : ms
-      )
-    );
+  const handleToggleStatus = async (id: string, name: string, status: string) => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      alert('No se encontró el token de autenticación.');
+      return;
+    }
+
+    const endpoint =
+      status === 'running'
+        ? `${import.meta.env.VITE_API_URL}/stop/container`
+        : `${import.meta.env.VITE_API_URL}/start/container`;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ image: name }),
+      });
+
+      const text = await response.text();
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${text}`);
+      }
+
+      await fetchMicroservices();
+    } catch (error) {
+      console.error('Error al cambiar estado:', error);
+      alert('No se pudo cambiar el estado del contenedor.');
+    }
   };
 
   return (
@@ -184,10 +274,17 @@ const Microservices: React.FC = () => {
             <MicroserviceCard
               key={microservice.id}
               microservice={microservice}
-              onEdit={handleEditMicroservice}
-              onDelete={handleDeleteMicroservice}
-              onViewStatus={handleViewStatus}
-              onToggleStatus={handleToggleStatus}
+              onDelete={() =>
+                handleDeleteMicroservice(microservice.id, microservice.name)
+              }
+              onViewStatus={() => handleViewStatus(microservice)}
+              onToggleStatus={() =>
+                handleToggleStatus(
+                  microservice.id,
+                  microservice.name,
+                  microservice.status
+                )
+              }
             />
           ))
         ) : (
@@ -221,7 +318,7 @@ const Microservices: React.FC = () => {
           setIsEditModalOpen(false);
           setSelectedMicroservice(null);
         }}
-        onSave={handleSaveCode}
+        onSave={() => {}}
       />
 
       <MicroserviceStatusModal
