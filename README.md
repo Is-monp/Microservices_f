@@ -8,7 +8,7 @@ Este proyecto proporciona una interfaz de usuario intuitiva para administrar y v
 
 - **Dashboard Principal**: Vista general con estadísticas clave y gráficos de actividad
 - **Gestión de Microservicios**: CRUD completo para microservicios con tarjetas visuales
-- **Monitoreo de Estado**: Visualización en tiempo real del estado de los microservicios
+- **Monitoreo de Estado**: Visualización del estado de los microservicios
 - **Edición de Código**: Modal integrado para editar configuraciones
 - **Autenticación**: Sistema de login/registro de usuarios
 - **Configuraciones**: Panel de ajustes personalizables
