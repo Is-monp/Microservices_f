@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Plus, RefreshCcw } from 'lucide-react';
 import MicroserviceCard, { type MicroserviceData } from '../../components/MicroserviceCard/MicroserviceCard';
 import CreateMicroserviceModal from '../../components/CreateMicroserviceModal/CreateMicroserviceModal';
 import EditCodeModal from '../../components/EditCodeModal/EditCodeModal';
@@ -7,44 +7,74 @@ import MicroserviceStatusModal from '../../components/MicroserviceStatusModal/Mi
 import './Microservices.scss';
 
 const Microservices: React.FC = () => {
-  const [microservices, setMicroservices] = useState<MicroserviceData[]>([
-    {
-      id: '1',
-      name: 'user-service',
-      type: 'REST API',
-      status: 'running',
-      description: 'Servicio de gestión de usuarios con autenticación',
-      code: `const express = require('express');\nconst app = express();\n\napp.get('/users', (req, res) => {\n  res.json({ users: [] });\n});\n\napp.listen(3000);`,
-      lastUpdated: 'hace 2 min',
-      endpointUrl: 'http://localhost:8080/user-service',
-    },
-    {
-      id: '2',
-      name: 'payment-service',
-      type: 'GraphQL',
-      status: 'running',
-      description: 'Servicio de procesamiento de pagos',
-      code: `const { ApolloServer, gql } = require('apollo-server');\n\nconst server = new ApolloServer({});\nserver.listen();`,
-      lastUpdated: 'hace 5 min',
-      endpointUrl: 'http://localhost:8080/payment-service',
-    },
-    {
-      id: '3',
-      name: 'notification-service',
-      type: 'WebSocket',
-      status: 'stopped',
-      description: 'Servicio de notificaciones en tiempo real',
-      code: `const WebSocket = require('ws');\nconst wss = new WebSocket.Server({ port: 8080 });`,
-      lastUpdated: 'hace 1 hora',
-      endpointUrl: 'http://localhost:8080/notification-service',
-    },
-  ]);
-
+  const [microservices, setMicroservices] = useState<MicroserviceData[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [selectedMicroservice, setSelectedMicroservice] = useState<MicroserviceData | null>(null);
 
+  // 🔹 Cargar datos desde el backend
+  const fetchMicroservices = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        throw new Error('No se encontró el token de autenticación');
+      }
+
+      const API_URL = `${import.meta.env.VITE_API_URL}/containers/list`;
+
+      const response = await fetch(API_URL, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `Error ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Datos recibidos:', data);
+
+      // Transformar los datos a tu estructura interna
+      const mappedMicroservices: MicroserviceData[] = data.containers.map(
+        (item: any, index: number) => ({
+          id: (index + 1).toString(),
+          name: item.containerName,
+          type: item.type || 'Desconocido',
+          status: item.status ? 'running' : 'stopped',
+          description: item.description || 'Sin descripción',
+          code: '',
+          lastUpdated: new Date(item.updatedAt).toLocaleString('es-CO', {
+            dateStyle: 'short',
+            timeStyle: 'short',
+          }),
+          endpointUrl: `${import.meta.env.VITE_API_URL}/containers/${item.containerName}`,
+        })
+      );
+
+      setMicroservices(mappedMicroservices);
+    } catch (err) {
+      console.error('💥 Error al obtener microservicios:', err);
+      setError(err instanceof Error ? err.message : 'Error desconocido');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMicroservices();
+  }, []);
+
+  // 🔹 Crear microservicio local (solo visual)
   const handleCreateMicroservice = (data: {
     name: string;
     type: string;
@@ -59,7 +89,7 @@ const Microservices: React.FC = () => {
       description: data.description,
       code: data.code,
       lastUpdated: 'hace un momento',
-      endpointUrl: `http://localhost:8080/${data.name}`,
+      endpointUrl: `${import.meta.env.VITE_API_URL}/containers/${data.name}`,
     };
 
     setMicroservices([...microservices, newMicroservice]);
@@ -122,32 +152,58 @@ const Microservices: React.FC = () => {
         >
           <Plus className="microservices-page__create-icon" />
         </button>
+
+        <button
+          className="microservices-page__refresh-btn"
+          onClick={fetchMicroservices}
+          disabled={isLoading}
+        >
+          <RefreshCcw size={18} />
+          {isLoading ? ' Cargando...' : ' Actualizar'}
+        </button>
       </div>
 
-      <div className="microservices-page__grid">
-        {microservices.map((microservice) => (
-          <MicroserviceCard
-            key={microservice.id}
-            microservice={microservice}
-            onEdit={handleEditMicroservice}
-            onDelete={handleDeleteMicroservice}
-            onViewStatus={handleViewStatus}
-            onToggleStatus={handleToggleStatus}
-          />
-        ))}
+      {error && (
+        <div
+          style={{
+            backgroundColor: '#ffe6e6',
+            color: 'red',
+            padding: '10px',
+            borderRadius: '6px',
+            marginBottom: '15px',
+            border: '1px solid red',
+          }}
+        >
+          {error}
+        </div>
+      )}
 
-        {microservices.length === 0 && (
-          <div className="microservices-page__empty">
-            <p className="microservices-page__empty-text">
-              No hay microservicios creados
-            </p>
-            <button
-              className="microservices-page__empty-btn"
-              onClick={() => setIsCreateModalOpen(true)}
-            >
-              Crear primer microservicio
-            </button>
-          </div>
+      <div className="microservices-page__grid">
+        {microservices.length > 0 ? (
+          microservices.map((microservice) => (
+            <MicroserviceCard
+              key={microservice.id}
+              microservice={microservice}
+              onEdit={handleEditMicroservice}
+              onDelete={handleDeleteMicroservice}
+              onViewStatus={handleViewStatus}
+              onToggleStatus={handleToggleStatus}
+            />
+          ))
+        ) : (
+          !isLoading && (
+            <div className="microservices-page__empty">
+              <p className="microservices-page__empty-text">
+                No hay microservicios creados
+              </p>
+              <button
+                className="microservices-page__empty-btn"
+                onClick={() => setIsCreateModalOpen(true)}
+              >
+                Crear primer microservicio
+              </button>
+            </div>
+          )
         )}
       </div>
 
