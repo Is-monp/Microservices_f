@@ -7,24 +7,39 @@ import Layout from './components/Layout/Layout';
 import AuthContainer from './Pages/AuthContainer/AuthContainer';
 import './main.scss';
 
+// 🔒 Componente para proteger rutas
+const PrivateRoute = ({ children }: { children: JSX.Element }) => {
+  const token = localStorage.getItem('accessToken');
+  return token ? children : <Navigate to="/auth" replace />;
+};
+
 const App: React.FC = () => {
   return (
     <div className="App">
       <Router>
         <Routes>
-          {/* Ruta principal con Layout */}
-          <Route path="/" element={<Layout/>}>
+
+          {/* 🔹 Ruta de login / registro */}
+          <Route path="/auth" element={<AuthContainer />} />
+
+          {/* 🔹 Rutas protegidas dentro del Layout */}
+          <Route
+            path="/"
+            element={
+              <PrivateRoute>
+                <Layout />
+              </PrivateRoute>
+            }
+          >
             {/* Dashboard como página principal */}
             <Route index element={<Dashboard />} />
-
-            {/* Rutas de navegación */}
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="microservices" element={<Microservices />} />
             <Route path="settings" element={<Settings />} />
-
-            {/* Redirección para rutas no encontradas */}
-            <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
+
+          {/* 🔹 Redirección global (si no hay ruta válida) */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </div>
