@@ -1,4 +1,4 @@
-# Microservices Dashboard Frontend
+# Microservices Dashboard: MicroManager
 
 Un dashboard moderno y responsive para la gestión y monitoreo de microservicios, construido con React, TypeScript y SASS
 
