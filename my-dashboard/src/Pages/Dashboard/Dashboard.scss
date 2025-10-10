@@ -89,6 +89,21 @@
     outline: none;
   }
 }
+.dashboard__loading {
+  color: #9ca3af;
+  text-align: center;
+  padding: 1rem;
+}
+
+.dashboard__error {
+  color: #f87171;
+  background: #2d0b0b;
+  border: 1px solid #b91c1c;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
 
 // Keyframe animations
 @keyframes fadeInUp {
