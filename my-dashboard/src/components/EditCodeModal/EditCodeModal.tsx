@@ -67,7 +67,7 @@ const EditCodeModal: React.FC<EditCodeModalProps> = ({
         <div className="edit-code-modal__body">
           <div className="edit-code-modal__editor">
             <div className="edit-code-modal__editor-header">
-              <span className="edit-code-modal__file-name">{microserviceName}.js</span>
+              <span className="edit-code-modal__file-name">{microserviceName}.py</span>
               {hasChanges && <span className="edit-code-modal__unsaved">● Sin guardar</span>}
             </div>
             <textarea
