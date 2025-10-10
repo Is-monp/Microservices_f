@@ -16,54 +16,69 @@ const Microservices: React.FC = () => {
   const [selectedMicroservice, setSelectedMicroservice] = useState<MicroserviceData | null>(null);
 
   // Cargar microservicios del backend
-  const fetchMicroservices = async () => {
-    setIsLoading(true);
-    setError(null);
+const fetchMicroservices = async () => {
+  setIsLoading(true);
+  setError(null);
 
-    try {
-      const token = localStorage.getItem('accessToken');
-      if (!token) throw new Error('No se encontró el token de autenticación');
-
-      const API_URL = `${import.meta.env.VITE_API_URL}/containers/list`;
-
-      const response = await fetch(API_URL, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || `Error ${response.status}`);
-      }
-
-      const data = await response.json();
-      const mappedMicroservices: MicroserviceData[] = data.containers.map(
-        (item: any, index: number) => ({
-          id: (index + 1).toString(),
-          name: item.containerName,
-          type: item.type || 'Desconocido',
-          status: item.status ? 'running' : 'stopped',
-          description: item.description || 'Sin descripción',
-          code: '',
-          lastUpdated: new Date(item.updatedAt).toLocaleString('es-CO', {
-            dateStyle: 'short',
-            timeStyle: 'short',
-          }),
-          endpointUrl: `${import.meta.env.VITE_API_URL}/containers/${item.containerName}`,
-        })
-      );
-
-      setMicroservices(mappedMicroservices);
-    } catch (err) {
-      console.error('Error al obtener microservicios:', err);
-      setError(err instanceof Error ? err.message : 'Error desconocido');
-    } finally {
-      setIsLoading(false);
+  try {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('No se encontró el token de autenticación');
     }
-  };
+
+    const API_URL = `${import.meta.env.VITE_API_URL}/containers/list`;
+
+    const response = await fetch(API_URL, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || `Error ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('✅ Datos recibidos:', data);
+
+    // Asegurarse de que containers exista y sea un array
+    const containers = Array.isArray(data?.containers) ? data.containers : [];
+
+    if (containers.length === 0) {
+      console.log('No hay contenedores disponibles');
+      setMicroservices([]);
+      return;
+    }
+
+    // Transformar los datos a tu estructura interna
+    const mappedMicroservices: MicroserviceData[] = containers.map(
+      (item: any, index: number) => ({
+        id: (index + 1).toString(),
+        name: item.containerName,
+        type: item.type || 'Desconocido',
+        status: item.status ? 'running' : 'stopped',
+        description: item.description || 'Sin descripción',
+        code: '',
+        lastUpdated: new Date(item.updatedAt).toLocaleString('es-CO', {
+          dateStyle: 'short',
+          timeStyle: 'short',
+        }),
+        endpointUrl: `${import.meta.env.VITE_API_URL}/containers/${item.containerName}`,
+      })
+    );
+
+    setMicroservices(mappedMicroservices);
+  } catch (err) {
+    console.error('💥 Error al obtener microservicios:', err);
+    setError(err instanceof Error ? err.message : 'Error desconocido');
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchMicroservices();
