@@ -22,17 +22,17 @@ const Dashboard: React.FC = () => {
       try {
         const headers = { Authorization: `Bearer ${token}` };
 
-        // 1️⃣ /containers/graphic
+        // containers/graphic
         const resGraphic = await fetch(`${import.meta.env.VITE_API_URL}/containers/graphic`, { headers });
         const graphic = await resGraphic.json();
         setGraphicData(graphic);
 
-        // 2️⃣ /containers/last
+        //containers/last
         const resLast = await fetch(`${import.meta.env.VITE_API_URL}/containers/last`, { headers });
         const last = await resLast.json();
         setLastContainer(last);
 
-        // 3️⃣ /containers/history
+        // containers/history
         const resHistory = await fetch(`${import.meta.env.VITE_API_URL}/containers/history`, { headers });
         const hist = await resHistory.json();
         setHistory(hist.containers || []);
