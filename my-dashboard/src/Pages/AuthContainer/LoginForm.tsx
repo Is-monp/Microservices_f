@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { EyeIcon, EyeOffIcon } from './Icons';
 import { useNavigate } from 'react-router-dom';
+import { saveCredentials } from '../../api/auth'; 
 
 interface LoginFormProps {
   onToggleMode: () => void;
@@ -68,29 +69,30 @@ const LoginForm: React.FC<LoginFormProps> = ({ onToggleMode }) => {
       const data: LoginResponse = await response.json();
       console.log('Login exitoso - Tokens recibidos');
 
-      // Guardar tokens en localStorage
+      // Guardar tokens
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
 
-      // Formatear y guardar info del usuario
-      const formattedName = formData.email.split('@')[0];
+      // Guardar credenciales en memoria para reautenticación automática
+      saveCredentials(formData.email, formData.password);
 
+      // Guardar info del usuario
+      const formattedName = formData.email.split('@')[0];
       const userInfo = {
         name: formattedName,
         email: formData.email
       };
-
       localStorage.setItem('user', JSON.stringify(userInfo));
 
-      console.log('Tokens y datos del usuario guardados en localStorage');
+      console.log(' Tokens y usuario guardados.');
       setFormData({ email: '', password: '' });
 
       navigate('/dashboard');
     } catch (err) {
-      console.error('Error completo:', err);
+      console.error('Error en login:', err);
       if (err instanceof TypeError) {
         if (err.message.includes('Failed to fetch')) {
-          setError('No se pudo conectar al servidor. Verifica: 1) CORS, 2) Servidor activo, 3) URL correcta');
+          setError('No se pudo conectar al servidor. Verifica la URL o CORS.');
         } else {
           setError(`Error de red: ${err.message}`);
         }
@@ -134,7 +136,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onToggleMode }) => {
             type="email"
             id="email"
             name="email"
-            placeholder="eg. papajohns@gmail.com"
+            placeholder="ej. usuario@uninorte.edu.co"
             value={formData.email}
             onChange={handleChange}
             required
