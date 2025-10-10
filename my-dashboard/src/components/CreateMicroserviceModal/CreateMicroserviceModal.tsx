@@ -22,121 +22,161 @@ interface CreateMicroserviceModalProps {
   }) => void;
 }
 
+// 🔹 NUEVAS PLANTILLAS PYTHON
 const templates: Template[] = [
   {
-    id: 'rest-api',
-    name: 'REST API',
-    type: 'REST API',
-    description: 'API RESTful con Express.js',
-    defaultCode: `const express = require('express');
-const app = express();
-const port = 3000;
-
-app.use(express.json());
-
-// GET endpoint
-app.get('/api/data', (req, res) => {
-  res.json({ message: 'Hello World' });
-});
-
-// POST endpoint
-app.post('/api/data', (req, res) => {
-  const data = req.body;
-  res.json({ received: data });
-});
-
-app.listen(port, () => {
-  console.log(\`Server running on port \${port}\`);
-});`,
+    id: 'simple',
+    name: 'Plantilla Simple',
+    type: 'Python',
+    description: 'Un microservicio mínimo que responde con un saludo.',
+    defaultCode: `def microservicio(request_json):
+    body = request_json.get("body", {})
+    nombre = body.get("nombre", "Mundo")
+    return {"mensaje": f"Hola {nombre}"}`,
   },
   {
-    id: 'graphql',
-    name: 'GraphQL API',
-    type: 'GraphQL',
-    description: 'Servidor GraphQL con Apollo',
-    defaultCode: `const { ApolloServer, gql } = require('apollo-server');
+    id: 'calculadora',
+    name: 'Calculadora',
+    type: 'Python',
+    description: 'Microservicio que realiza operaciones matemáticas básicas.',
+    defaultCode: `# app.py
 
-const typeDefs = gql\`
-  type Query {
-    hello: String
-    user(id: ID!): User
-  }
+from typing import Any, Dict
 
-  type User {
-    id: ID!
-    name: String!
-    email: String!
-  }
-\`;
+OPS_PERMITIDAS = {"sum", "sub", "mul", "div"}
 
-const resolvers = {
-  Query: {
-    hello: () => 'Hello World',
-    user: (_, { id }) => ({
-      id,
-      name: 'John Doe',
-      email: 'john@example.com',
-    }),
-  },
-};
 
-const server = new ApolloServer({ typeDefs, resolvers });
+def _to_float(value: Any, name: str) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        raise ValueError(f"El parámetro '{name}' debe ser numérico.")
 
-server.listen().then(({ url }) => {
-  console.log(\`Server ready at \${url}\`);
-});`,
-  },
-  {
-    id: 'websocket',
-    name: 'WebSocket Server',
-    type: 'WebSocket',
-    description: 'Servidor WebSocket en tiempo real',
-    defaultCode: `const WebSocket = require('ws');
 
-const wss = new WebSocket.Server({ port: 8080 });
+def microservicio(request_json: Dict[str, Any]) -> Dict[str, Any]:
+    try:
+        body = (request_json or {}).get("body", {}) or {}
 
-wss.on('connection', (ws) => {
-  console.log('Client connected');
+        op = str(body.get("op", "")).strip().lower()
+        if op not in OPS_PERMITIDAS:
+            return {
+                "ok": False,
+                "error": "Operación inválida. Usa: sum | sub | mul | div"
+            }
 
-  ws.on('message', (message) => {
-    console.log('Received:', message);
+        a = _to_float(body.get("a", None), "a")
+        b = _to_float(body.get("b", None), "b")
 
-    // Echo message back to client
-    ws.send(\`Echo: \${message}\`);
-  });
+        if op == "sum":
+            result = a + b
+        elif op == "sub":
+            result = a - b
+        elif op == "mul":
+            result = a * b
+        elif op == "div":
+            if b == 0:
+                return {"ok": False, "error": "División por cero no permitida."}
+            result = a / b
 
-  ws.on('close', () => {
-    console.log('Client disconnected');
-  });
+        return {
+            "ok": True,
+            "op": op,
+            "a": a,
+            "b": b,
+            "result": result
+        }
 
-  // Send welcome message
-  ws.send('Welcome to WebSocket server');
-});
-
-console.log('WebSocket server running on port 8080');`,
+    except ValueError as e:
+        return {"ok": False, "error": str(e)}
+    except Exception as e:
+        return {"ok": False, "error": f"Error inesperado: {e}"}`,
   },
   {
-    id: 'microservice',
-    name: 'Microservicio Base',
-    type: 'Microservice',
-    description: 'Microservicio básico con procesamiento',
-    defaultCode: `const processData = async (data) => {
-  // Procesamiento de datos
-  console.log('Processing:', data);
+    id: 'tabla-roble',
+    name: 'Tabla Roble',
+    type: 'Python',
+    description:
+      'Conecta con el servicio Roble para leer una tabla y contar nombres distintos.',
+    defaultCode: `# app.py
+# Microservicio: obtiene todos los datos de la columna "nombre" de una tabla
+# y cuenta cuántos nombres distintos hay, usando el servicio de base de datos Uninorte.
 
-  return {
-    status: 'success',
-    processed: data,
-    timestamp: new Date().toISOString(),
-  };
-};
+import requests
+from typing import Any, Dict, List
 
-const main = async () => {
-  const result = await processData({ message: 'Hello' });
-  console.log('Result:', result);
-};
+BASE_URL = "https://roble-api.openlab.uninorte.edu.co/database"
 
-main();`,
+
+def _err(msg: str) -> Dict[str, Any]:
+    return {"ok": False, "error": msg}
+
+
+def _ok(data: Dict[str, Any]) -> Dict[str, Any]:
+    return {"ok": True, **data}
+
+
+def microservicio(request_json: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Espera en el body:
+    {
+      "dbName": "token_project_xyz",
+      "tableName": "usuarios",
+      "access_token": "TU_ACCESS_TOKEN"
+    }
+    """
+    try:
+        body = (request_json or {}).get("body", {}) or {}
+        db_name = body.get("dbName")
+        table_name = body.get("tableName")
+        token = body.get("access_token")
+
+        if not db_name or not table_name or not token:
+            return _err("Faltan parámetros: dbName, tableName o access_token")
+
+        # Construir URL completa
+        url = f"{BASE_URL}/{db_name}/read"
+        params = {"tableName": table_name}
+        headers = {"Authorization": f"Bearer {token}"}
+
+        resp = requests.get(url, headers=headers, params=params, timeout=30)
+        if resp.status_code != 200:
+            try:
+                msg = resp.json()
+            except Exception:
+                msg = resp.text
+            return _err(f"Error del servicio ({resp.status_code}): {msg}")
+
+        data = resp.json()
+        if not isinstance(data, list):
+            return _err("Respuesta inesperada: se esperaba una lista de registros")
+
+        nombres: List[str] = []
+        for fila in data:
+            if not isinstance(fila, dict):
+                continue
+            valor = fila.get("nombre")
+            if valor is None:
+                continue
+            s = str(valor).strip()
+            if s:
+                nombres.append(s)
+
+        total = len(nombres)
+        distintos = len(set(nombres))
+
+        return _ok({
+            "column": "nombre",
+            "names": nombres,
+            "total": total,
+            "distinct_count": distintos
+        })
+
+    except requests.Timeout:
+        return _err("Timeout al consultar el servicio.")
+    except requests.RequestException as e:
+        return _err(f"Error de red: {e}")
+    except Exception as e:
+        return _err(f"Error inesperado: {e}")`,
   },
 ];
 
@@ -197,7 +237,7 @@ const CreateMicroserviceModal: React.FC<CreateMicroserviceModalProps> = ({
               type="text"
               className="create-modal__input"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setName(e.target.value.toLowerCase())}
               placeholder="mi-microservicio"
               required
             />
