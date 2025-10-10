@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, RefreshCcw } from 'lucide-react';
+import { Plus, RefreshCcw, Loader2 } from 'lucide-react';
 import MicroserviceCard, { type MicroserviceData } from '../../components/MicroserviceCard/MicroserviceCard';
 import CreateMicroserviceModal from '../../components/CreateMicroserviceModal/CreateMicroserviceModal';
 import EditCodeModal from '../../components/EditCodeModal/EditCodeModal';
@@ -14,49 +14,36 @@ const Microservices: React.FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [selectedMicroservice, setSelectedMicroservice] = useState<MicroserviceData | null>(null);
+  const [loadingAction, setLoadingAction] = useState<string | null>(null); // NUEVO
 
-  // Cargar microservicios del backend
-const fetchMicroservices = async () => {
-  setIsLoading(true);
-  setError(null);
+  const fetchMicroservices = async () => {
+    setIsLoading(true);
+    setError(null);
 
-  try {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      throw new Error('No se encontró el token de autenticación');
-    }
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) throw new Error('No se encontró el token de autenticación');
 
-    const API_URL = `${import.meta.env.VITE_API_URL}/containers/list`;
+      const API_URL = `${import.meta.env.VITE_API_URL}/containers/list`;
 
-    const response = await fetch(API_URL, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      const response = await fetch(API_URL, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || `Error ${response.status}`);
-    }
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `Error ${response.status}`);
+      }
 
-    const data = await response.json();
-    console.log('✅ Datos recibidos:', data);
+      const data = await response.json();
+      const containers = Array.isArray(data?.containers) ? data.containers : [];
 
-    // Asegurarse de que containers exista y sea un array
-    const containers = Array.isArray(data?.containers) ? data.containers : [];
-
-    if (containers.length === 0) {
-      console.log('No hay contenedores disponibles');
-      setMicroservices([]);
-      return;
-    }
-
-    // Transformar los datos a tu estructura interna
-    const mappedMicroservices: MicroserviceData[] = containers.map(
-      (item: any, index: number) => ({
-        id: (index + 1).toString(),
+      const mapped: MicroserviceData[] = containers.map((item: any, i: number) => ({
+        id: (i + 1).toString(),
         name: item.containerName,
         type: item.type || 'Desconocido',
         status: item.status ? 'running' : 'stopped',
@@ -67,113 +54,143 @@ const fetchMicroservices = async () => {
           timeStyle: 'short',
         }),
         endpointUrl: `${import.meta.env.VITE_API_URL}/containers/${item.containerName}`,
-      })
-    );
+      }));
 
-    setMicroservices(mappedMicroservices);
-  } catch (err) {
-    console.error('💥 Error al obtener microservicios:', err);
-    setError(err instanceof Error ? err.message : 'Error desconocido');
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+      setMicroservices(mapped);
+    } catch (err) {
+      console.error('Error al obtener microservicios:', err);
+      setError(err instanceof Error ? err.message : 'Error desconocido');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchMicroservices();
   }, []);
 
-  // Crear microservicio (proceso de dos pasos)
-  const handleCreateMicroservice = async (data: {
-    name: string;
-    type: string;
-    description: string;
-    code: string;
-  }) => {
+  // Crear microservicio
+  const handleCreateMicroservice = async (data: any) => {
     const token = localStorage.getItem('accessToken');
-    if (!token) {
-      alert('No se encontró el token de autenticación.');
-      return;
-    }
+    if (!token) return alert('No se encontró el token.');
 
+    setLoadingAction('Creando microservicio...');
     try {
-      // Paso 1: subir el archivo Python como imagen
       const formData = new FormData();
       const pythonFile = new File([data.code], 'app.py', { type: 'text/x-python' });
-
-      // El backend en Go espera el campo llamado "app"
       formData.append('app', pythonFile, 'app.py');
       formData.append('name', data.name);
 
-      console.log('Enviando FormData a /new/image ...');
-      for (const [key, value] of formData.entries()) {
-        console.log('Campo en FormData:', key, value);
-      }
-
-      const uploadResponse = await fetch(`${import.meta.env.VITE_API_URL}/new/image`, {
+      const upload = await fetch(`${import.meta.env.VITE_API_URL}/new/image`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
 
-      const uploadText = await uploadResponse.text();
-      console.log('Respuesta del backend (/new/image):', uploadText);
+      if (!upload.ok) throw new Error(await upload.text());
 
-      if (!uploadResponse.ok) {
-        throw new Error(`Error ${uploadResponse.status}: ${uploadText}`);
-      }
-
-      // Paso 2: crear el contenedor con más campos
-      const containerPayload = {
+      const payload = {
         image: data.name,
         type: data.type,
         description: data.description,
       };
 
-      const containerResponse = await fetch(
-        `${import.meta.env.VITE_API_URL}/new/container`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(containerPayload),
-        }
-      );
+      const container = await fetch(`${import.meta.env.VITE_API_URL}/new/container`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
 
-      const containerText = await containerResponse.text();
-      if (!containerResponse.ok) {
-        throw new Error(`Error ${containerResponse.status}: ${containerText}`);
-      }
-
-      alert('Contenedor creado correctamente.');
+      if (!container.ok) throw new Error(await container.text());
+      alert('Microservicio creado correctamente.');
       setIsCreateModalOpen(false);
       await fetchMicroservices();
-    } catch (error) {
-      console.error('Error al crear microservicio:', error);
-      alert('No se pudo crear el contenedor. Revisa los logs.');
+    } catch (e) {
+      console.error('Error:', e);
+      alert('No se pudo crear el microservicio.');
+    } finally {
+      setLoadingAction(null);
     }
   };
 
-  // Eliminar microservicio
-  const handleDeleteMicroservice = async (id: string, name: string) => {
+  // Editar microservicio
+  const handleEditMicroservice = async (updatedData: any) => {
     const token = localStorage.getItem('accessToken');
-    if (!token) {
-      alert('No se encontró el token de autenticación.');
-      return;
-    }
+    if (!token) return alert('No se encontró el token.');
 
-    const confirmDelete = window.confirm(
-      `¿Seguro que deseas eliminar el contenedor "${name}"?`
-    );
-    if (!confirmDelete) return;
+    setLoadingAction('Actualizando microservicio...');
+    try {
+      const formData = new FormData();
+      const pythonFile = new File([updatedData.code], 'app.py', { type: 'text/x-python' });
+      formData.append('app', pythonFile, 'app.py');
+      formData.append('name', updatedData.name);
+      formData.append('type', updatedData.type);
+      formData.append('description', updatedData.description);
+
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/edit/container`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error(await res.text());
+      alert('Microservicio actualizado correctamente.');
+      setIsEditModalOpen(false);
+      await fetchMicroservices();
+    } catch (e) {
+      console.error(e);
+      alert('Error al actualizar microservicio.');
+    } finally {
+      setLoadingAction(null);
+    }
+  };
+
+  // Cambiar estado (start/stop)
+  const handleToggleStatus = async (id: string, name: string, status: string) => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) return alert('No se encontró el token.');
+
+    const action = status === 'running' ? 'Deteniendo' : 'Iniciando';
+    setLoadingAction(`${action} microservicio...`);
+
+    const endpoint =
+      status === 'running'
+        ? `${import.meta.env.VITE_API_URL}/stop/container`
+        : `${import.meta.env.VITE_API_URL}/start/container`;
 
     try {
-      // Paso 1: detener contenedor antes de eliminar
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ image: name }),
+      });
+
+      if (!res.ok) throw new Error(await res.text());
+      await fetchMicroservices();
+    } catch (e) {
+      console.error(e);
+      alert('Error al cambiar estado.');
+    } finally {
+      setLoadingAction(null);
+    }
+  };
+
+  // Eliminar
+  const handleDeleteMicroservice = async (id: string, name: string) => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) return alert('No se encontró el token.');
+
+    const confirmDelete = window.confirm(`¿Eliminar "${name}"?`);
+    if (!confirmDelete) return;
+
+    setLoadingAction('Eliminando microservicio...');
+    try {
       await fetch(`${import.meta.env.VITE_API_URL}/stop/container`, {
         method: 'POST',
         headers: {
@@ -183,51 +200,7 @@ const fetchMicroservices = async () => {
         body: JSON.stringify({ image: name }),
       });
 
-      // Paso 2: eliminar contenedor
-      const removeResponse = await fetch(
-        `${import.meta.env.VITE_API_URL}/remove/container`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ image: name }),
-        }
-      );
-
-      const removeText = await removeResponse.text();
-      if (!removeResponse.ok) {
-        throw new Error(`Error ${removeResponse.status}: ${removeText}`);
-      }
-
-      alert(`Contenedor "${name}" eliminado correctamente.`);
-      await fetchMicroservices();
-    } catch (error) {
-      console.error('Error al eliminar contenedor:', error);
-      alert('No se pudo eliminar el contenedor.');
-    }
-  };
-
-  const handleViewStatus = (microservice: MicroserviceData) => {
-    setSelectedMicroservice(microservice);
-    setIsStatusModalOpen(true);
-  };
-
-  const handleToggleStatus = async (id: string, name: string, status: string) => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      alert('No se encontró el token de autenticación.');
-      return;
-    }
-
-    const endpoint =
-      status === 'running'
-        ? `${import.meta.env.VITE_API_URL}/stop/container`
-        : `${import.meta.env.VITE_API_URL}/start/container`;
-
-    try {
-      const response = await fetch(endpoint, {
+      const remove = await fetch(`${import.meta.env.VITE_API_URL}/remove/container`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -236,20 +209,25 @@ const fetchMicroservices = async () => {
         body: JSON.stringify({ image: name }),
       });
 
-      const text = await response.text();
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${text}`);
-      }
-
+      if (!remove.ok) throw new Error(await remove.text());
       await fetchMicroservices();
-    } catch (error) {
-      console.error('Error al cambiar estado:', error);
-      alert('No se pudo cambiar el estado del contenedor.');
+    } catch (e) {
+      console.error(e);
+      alert('Error al eliminar.');
+    } finally {
+      setLoadingAction(null);
     }
   };
 
   return (
     <div className="microservices-page">
+      {loadingAction && (
+        <div className="loading-overlay">
+          <Loader2 className="spinner" />
+          <p>{loadingAction}</p>
+        </div>
+      )}
+
       <div className="microservices-page__header">
         <button
           className="microservices-page__create-btn"
@@ -285,29 +263,26 @@ const fetchMicroservices = async () => {
 
       <div className="microservices-page__grid">
         {microservices.length > 0 ? (
-          microservices.map((microservice) => (
+          microservices.map((m) => (
             <MicroserviceCard
-              key={microservice.id}
-              microservice={microservice}
-              onDelete={() =>
-                handleDeleteMicroservice(microservice.id, microservice.name)
-              }
-              onViewStatus={() => handleViewStatus(microservice)}
-              onToggleStatus={() =>
-                handleToggleStatus(
-                  microservice.id,
-                  microservice.name,
-                  microservice.status
-                )
-              }
+              key={m.id}
+              microservice={m}
+              onDelete={() => handleDeleteMicroservice(m.id, m.name)}
+              onViewStatus={() => {
+                setSelectedMicroservice(m);
+                setIsStatusModalOpen(true);
+              }}
+              onToggleStatus={() => handleToggleStatus(m.id, m.name, m.status)}
+              onEdit={() => {
+                setSelectedMicroservice(m);
+                setIsEditModalOpen(true);
+              }}
             />
           ))
         ) : (
           !isLoading && (
             <div className="microservices-page__empty">
-              <p className="microservices-page__empty-text">
-                No hay microservicios creados
-              </p>
+              <p className="microservices-page__empty-text">No hay microservicios creados</p>
               <button
                 className="microservices-page__empty-btn"
                 onClick={() => setIsCreateModalOpen(true)}
@@ -333,7 +308,15 @@ const fetchMicroservices = async () => {
           setIsEditModalOpen(false);
           setSelectedMicroservice(null);
         }}
-        onSave={() => {}}
+        onSave={async (newCode) => {
+          if (!selectedMicroservice) return;
+          await handleEditMicroservice({
+            name: selectedMicroservice.name,
+            type: selectedMicroservice.type,
+            description: selectedMicroservice.description,
+            code: newCode,
+          });
+        }}
       />
 
       <MicroserviceStatusModal
