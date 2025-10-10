@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { Server, Globe, Activity } from 'lucide-react';
-import StatsCard from '../../components/StatsCard/StatsCard';
-import MicroservicesTable from '../../components/MicroservicesTable/MicroservicesTable';
-import ActivityChart from '../../components/ActivityChart/ActivityChart';
-import './Dashboard.scss';
+import React, { useEffect, useState } from "react";
+import { Server, Globe, Activity } from "lucide-react";
+import StatsCard from "../../components/StatsCard/StatsCard";
+import MicroservicesTable from "../../components/MicroservicesTable/MicroservicesTable";
+import ActivityChart from "../../components/ActivityChart/ActivityChart";
+import { authenticatedFetch } from "../../api/auth";
+import "./Dashboard.scss";
 
 interface GraphicData {
   labels: string[];
@@ -36,32 +37,22 @@ const Dashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const token = localStorage.getItem('accessToken');
-
   const fetchDashboardData = async () => {
-    if (!token) {
-      setError('No se encontró el token de autenticación');
-      return;
-    }
-
     try {
       setIsLoading(true);
       setError(null);
 
-      const headers = {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      };
+      const API = import.meta.env.VITE_API_URL;
 
-      // Ejecutar peticiones en paralelo
+      // Se hacen las 3 peticiones paralelas usando el helper
       const [graphicRes, lastRes, listRes] = await Promise.all([
-        fetch(`${import.meta.env.VITE_API_URL}/containers/graphic`, { headers }),
-        fetch(`${import.meta.env.VITE_API_URL}/containers/last`, { headers }),
-        fetch(`${import.meta.env.VITE_API_URL}/containers/list`, { headers }),
+        authenticatedFetch(`${API}/containers/graphic`),
+        authenticatedFetch(`${API}/containers/last`),
+        authenticatedFetch(`${API}/containers/list`),
       ]);
 
       if (!graphicRes.ok || !lastRes.ok || !listRes.ok) {
-        throw new Error('Error obteniendo datos del dashboard');
+        throw new Error("Error al obtener datos del dashboard");
       }
 
       const graphicData = await graphicRes.json();
@@ -72,8 +63,8 @@ const Dashboard: React.FC = () => {
       setLastContainer(lastData);
       setContainers(listData.containers || []);
     } catch (err) {
-      console.error(err);
-      setError('No se pudo cargar el dashboard.');
+      console.error("Error al cargar dashboard:", err);
+      setError("No se pudo cargar el dashboard. Verifica tu sesión.");
     } finally {
       setIsLoading(false);
     }
@@ -83,7 +74,7 @@ const Dashboard: React.FC = () => {
     fetchDashboardData();
   }, []);
 
-  // Calcular métricas a partir de /list
+  // === Métricas ===
   const totalMicroservices = containers.length;
   const activeMicroservices = containers.filter((c) => c.status).length;
   const healthyPercent =
@@ -91,7 +82,7 @@ const Dashboard: React.FC = () => {
       ? Math.round((activeMicroservices / totalMicroservices) * 100)
       : 0;
 
-  // Obtener el contenedor actualizado más recientemente
+  // Última actualización
   const latestContainer = containers.reduce((latest, current) => {
     return !latest || new Date(current.updatedAt) > new Date(latest.updatedAt)
       ? current
@@ -109,7 +100,7 @@ const Dashboard: React.FC = () => {
         <div className="dashboard__error">{error}</div>
       ) : (
         <>
-          {/* Stats Cards */}
+          {/* Estadísticas principales */}
           <div className="dashboard__stats">
             <StatsCard
               title="Microservicios Totales"
@@ -122,16 +113,16 @@ const Dashboard: React.FC = () => {
               title="Última Actualización"
               value={
                 latestContainer
-                  ? new Date(latestContainer.updatedAt).toLocaleString('es-CO', {
-                      dateStyle: 'short',
-                      timeStyle: 'short',
+                  ? new Date(latestContainer.updatedAt).toLocaleString("es-CO", {
+                      dateStyle: "short",
+                      timeStyle: "short",
                     })
-                  : '--'
+                  : "--"
               }
               subtitle={
                 latestContainer
                   ? `Actualizado: ${latestContainer.containerName}`
-                  : 'Sin registros recientes'
+                  : "Sin registros recientes"
               }
               color="purple"
               icon={<Globe className="stats-card__icon" />}
@@ -145,7 +136,7 @@ const Dashboard: React.FC = () => {
             />
           </div>
 
-          {/* Charts */}
+          {/* Gráfica de actividad */}
           <div className="dashboard__charts">
             <div className="dashboard__chart-main">
               <ActivityChart
@@ -156,7 +147,7 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Table */}
+          {/* Tabla de microservicios */}
           <div className="dashboard__table">
             <MicroservicesTable data={containers} />
           </div>
