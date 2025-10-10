@@ -7,8 +7,8 @@ import Layout from './components/Layout/Layout';
 import AuthContainer from './Pages/AuthContainer/AuthContainer';
 import './main.scss';
 
-// 🔒 Componente para proteger rutas
-const PrivateRoute = ({ children }: { children: JSX.Element }) => {
+//  Componente para proteger rutas
+const PrivateRoute = ({ children }: { children: TSX.Element }) => {
   const token = localStorage.getItem('accessToken');
   return token ? children : <Navigate to="/auth" replace />;
 };
@@ -19,10 +19,10 @@ const App: React.FC = () => {
       <Router>
         <Routes>
 
-          {/* 🔹 Ruta de login / registro */}
+          {/* Ruta de login / registro */}
           <Route path="/auth" element={<AuthContainer />} />
 
-          {/* 🔹 Rutas protegidas dentro del Layout */}
+          {/* Rutas protegidas dentro del Layout */}
           <Route
             path="/"
             element={
@@ -38,7 +38,7 @@ const App: React.FC = () => {
             <Route path="settings" element={<Settings />} />
           </Route>
 
-          {/* 🔹 Redirección global (si no hay ruta válida) */}
+          {/*Redirección global (si no hay ruta válida) */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
