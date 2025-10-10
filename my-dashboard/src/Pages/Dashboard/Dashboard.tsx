@@ -5,91 +5,147 @@ import MicroservicesTable from '../../components/MicroservicesTable/Microservice
 import ActivityChart from '../../components/ActivityChart/ActivityChart';
 import './Dashboard.scss';
 
+interface GraphicData {
+  labels: string[];
+  deployments: number[];
+  errors: number[];
+}
+
+interface ContainerItem {
+  containerName: string;
+  status: boolean;
+  description: string;
+  updatedAt: string;
+  type: string;
+}
+
+interface LastContainer {
+  containerName: string;
+  status: boolean;
+  createdAt: string;
+}
+
 const Dashboard: React.FC = () => {
-  const [graphicData, setGraphicData] = useState<{ labels: string[]; deployments: number[]; errors: number[] }>({
+  const [graphicData, setGraphicData] = useState<GraphicData>({
     labels: [],
     deployments: [],
     errors: [],
   });
-  const [lastContainer, setLastContainer] = useState<any>(null);
-  const [history, setHistory] = useState<any[]>([]);
+  const [containers, setContainers] = useState<ContainerItem[]>([]);
+  const [lastContainer, setLastContainer] = useState<LastContainer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const token = localStorage.getItem('accessToken');
 
-  useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        const headers = { Authorization: `Bearer ${token}` };
+  const fetchDashboardData = async () => {
+    if (!token) {
+      setError('No se encontró el token de autenticación');
+      return;
+    }
 
-        // containers/graphic
-        const resGraphic = await fetch(`${import.meta.env.VITE_API_URL}/containers/graphic`, { headers });
-        const graphic = await resGraphic.json();
-        setGraphicData(graphic);
+    try {
+      setIsLoading(true);
+      setError(null);
 
-        //containers/last
-        const resLast = await fetch(`${import.meta.env.VITE_API_URL}/containers/last`, { headers });
-        const last = await resLast.json();
-        setLastContainer(last);
+      const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      };
 
-        // containers/history
-        const resHistory = await fetch(`${import.meta.env.VITE_API_URL}/containers/history`, { headers });
-        const hist = await resHistory.json();
-        setHistory(hist.containers || []);
-      } catch (err) {
-        console.error('Error al cargar datos del Dashboard:', err);
-      } finally {
-        setIsLoading(false);
+      // Ejecutar peticiones en paralelo
+      const [graphicRes, lastRes, listRes] = await Promise.all([
+        fetch(`${import.meta.env.VITE_API_URL}/containers/graphic`, { headers }),
+        fetch(`${import.meta.env.VITE_API_URL}/containers/last`, { headers }),
+        fetch(`${import.meta.env.VITE_API_URL}/containers/list`, { headers }),
+      ]);
+
+      if (!graphicRes.ok || !lastRes.ok || !listRes.ok) {
+        throw new Error('Error obteniendo datos del dashboard');
       }
-    };
 
-    if (token) fetchAll();
-  }, [token]);
+      const graphicData = await graphicRes.json();
+      const lastData = await lastRes.json();
+      const listData = await listRes.json();
 
-  const activeCount = history.filter((c) => c.status === true).length;
-  const totalCount = history.length;
+      setGraphicData(graphicData);
+      setLastContainer(lastData);
+      setContainers(listData.containers || []);
+    } catch (err) {
+      console.error(err);
+      setError('No se pudo cargar el dashboard.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  // Calcular métricas a partir de /list
+  const totalMicroservices = containers.length;
+  const activeMicroservices = containers.filter((c) => c.status).length;
+  const healthyPercent =
+    totalMicroservices > 0
+      ? Math.round((activeMicroservices / totalMicroservices) * 100)
+      : 0;
+
+  // Obtener el contenedor actualizado más recientemente
+  const latestContainer = containers.reduce((latest, current) => {
+    return !latest || new Date(current.updatedAt) > new Date(latest.updatedAt)
+      ? current
+      : latest;
+  }, null as ContainerItem | null);
 
   return (
     <div className="dashboard">
       {isLoading ? (
-        <p style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>Cargando datos del Dashboard...</p>
+        <div className="dashboard__loading">
+          <div className="spinner"></div>
+          <p>Cargando datos del dashboard...</p>
+        </div>
+      ) : error ? (
+        <div className="dashboard__error">{error}</div>
       ) : (
         <>
-          {/* Stats */}
+          {/* Stats Cards */}
           <div className="dashboard__stats">
             <StatsCard
-              title="Microservicios Creados"
-              value={totalCount.toString()}
-              subtitle={`${activeCount} activos`}
+              title="Microservicios Totales"
+              value={totalMicroservices.toString()}
+              subtitle={`${activeMicroservices} activos actualmente`}
               color="yellow"
               icon={<Server className="stats-card__icon" />}
             />
-
             <StatsCard
               title="Última Actualización"
               value={
-                lastContainer
-                  ? new Date(lastContainer.createdAt).toLocaleString('es-CO', {
+                latestContainer
+                  ? new Date(latestContainer.updatedAt).toLocaleString('es-CO', {
                       dateStyle: 'short',
                       timeStyle: 'short',
                     })
-                  : '-'
+                  : '--'
               }
-              subtitle={lastContainer?.containerName || 'Sin registros'}
+              subtitle={
+                latestContainer
+                  ? `Actualizado: ${latestContainer.containerName}`
+                  : 'Sin registros recientes'
+              }
               color="purple"
               icon={<Globe className="stats-card__icon" />}
             />
-
             <StatsCard
-              title="Microservicios Activos"
-              value={`${((activeCount / (totalCount || 1)) * 100).toFixed(0)}%`}
-              subtitle={`${activeCount} activos de ${totalCount}`}
+              title="Microservicios Saludables"
+              value={`${healthyPercent}%`}
+              subtitle={`${activeMicroservices} de ${totalMicroservices} activos`}
               color="green"
               icon={<Activity className="stats-card__icon" />}
             />
           </div>
 
-          {/* Chart */}
+          {/* Charts */}
           <div className="dashboard__charts">
             <div className="dashboard__chart-main">
               <ActivityChart
@@ -102,7 +158,7 @@ const Dashboard: React.FC = () => {
 
           {/* Table */}
           <div className="dashboard__table">
-            <MicroservicesTable data={history} />
+            <MicroservicesTable data={containers} />
           </div>
         </>
       )}
