@@ -2,54 +2,63 @@ import React from 'react';
 import './MicroservicesTable.scss';
 
 interface Microservice {
-    name: string;
-    type: string;
-    status: 'Activo' | 'Detenido';
-    lastUpdated: string;
+  containerName: string;
+  status: boolean;
+  createdAt: string;
 }
 
-const MicroservicesTable: React.FC = () => {
-    const microservices: Microservice[] = [
-        { name: 'user-service', type: 'REST API', status: 'Activo', lastUpdated: '2 min ago' },
-        { name: 'payment-service', type: 'GraphQL', status: 'Activo', lastUpdated: '5 min ago' },
-        { name: 'notification-service', type: 'WebSocket', status: 'Detenido', lastUpdated: '1 hour ago' },
-        { name: 'auth-service', type: 'REST API', status: 'Activo', lastUpdated: '30 min ago' }
-    ];
+interface MicroservicesTableProps {
+  data: Microservice[];
+}
 
-    return (
-        <div className="microservices-table">
-        <div className="microservices-table__header">
-            <h2 className="microservices-table__title">Microservicios Registrados</h2>
-        </div>
-        
-        <div className="microservices-table__container">
-            <table className="microservices-table__table">
+const MicroservicesTable: React.FC<MicroservicesTableProps> = ({ data }) => {
+  return (
+    <div className="microservices-table">
+      <div className="microservices-table__header">
+        <h2 className="microservices-table__title">Historial de Microservicios</h2>
+      </div>
+
+      <div className="microservices-table__container">
+        {data.length === 0 ? (
+          <p className="microservices-table__empty">No hay registros disponibles</p>
+        ) : (
+          <table className="microservices-table__table">
             <thead>
-                <tr className="microservices-table__header-row">
+              <tr className="microservices-table__header-row">
                 <th className="microservices-table__header-cell">Nombre</th>
-                <th className="microservices-table__header-cell">Tipo</th>
                 <th className="microservices-table__header-cell">Estado</th>
-                <th className="microservices-table__header-cell">Última Actualización</th>
-                </tr>
+                <th className="microservices-table__header-cell">Fecha</th>
+              </tr>
             </thead>
             <tbody>
-                {microservices.map((service, index) => (
+              {data.map((service, index) => (
                 <tr key={index} className="microservices-table__row">
-                    <td className="microservices-table__cell microservices-table__cell--name">{service.name}</td>
-                    <td className="microservices-table__cell">{service.type}</td>
-                    <td className="microservices-table__cell">
-                    <span className={`microservices-table__status microservices-table__status--${service.status.toLowerCase()}`}>
-                        {service.status}
+                  <td className="microservices-table__cell microservices-table__cell--name">
+                    {service.containerName}
+                  </td>
+                  <td className="microservices-table__cell">
+                    <span
+                      className={`microservices-table__status microservices-table__status--${
+                        service.status ? 'activo' : 'detenido'
+                      }`}
+                    >
+                      {service.status ? 'Activo' : 'Detenido'}
                     </span>
-                    </td>
-                    <td className="microservices-table__cell microservices-table__cell--time">{service.lastUpdated}</td>
+                  </td>
+                  <td className="microservices-table__cell microservices-table__cell--time">
+                    {new Date(service.createdAt).toLocaleString('es-CO', {
+                      dateStyle: 'short',
+                      timeStyle: 'short',
+                    })}
+                  </td>
                 </tr>
-                ))}
+              ))}
             </tbody>
-            </table>
-        </div>
-        </div>
-    );
+          </table>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default MicroservicesTable;
