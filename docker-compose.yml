@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  front:
+    container_name: front
+    build:
+      context: ./my-dashboard     # aquí Docker buscará el Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./my-dashboard:/app       # monta el código fuente local
+      - /app/node_modules         # evita conflictos de dependencias
+    command: npm run dev -- --host
+    stdin_open: true              # mantiene el contenedor vivo en modo dev
+    tty: true
