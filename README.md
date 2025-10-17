@@ -75,7 +75,13 @@ my-dashboard/
 ### Prerrequisitos
 
 - Node.js (versión 18 o superior)
-- npm 
+- npm
+
+### Ejecucion Docker
+```bash
+docker compose up -d --build
+```
+Por defecto, el servicio se inicia en `http://localhost:5173`.
 
 ### Instalación
 
